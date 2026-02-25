@@ -13,7 +13,6 @@ const ProgressBar = () => {
         { num: 1, label: '1. Cadastro' },
         { num: 2, label: '2. Família/Renda' },
         { num: 3, label: '3. Financeiro' },
-        { num: 4, label: '4. Análise' },
     ];
 
     const progress = (currentStep / steps.length) * 100;

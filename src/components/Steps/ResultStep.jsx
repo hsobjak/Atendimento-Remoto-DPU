@@ -66,7 +66,7 @@ const ResultStep = () => {
             </div>
 
             <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <button className="btn-secondary" onClick={() => navigate('/step/4')} style={{ borderColor: '#666', color: '#666' }}>
+                <button className="btn-secondary" onClick={() => navigate('/step/3')} style={{ borderColor: '#666', color: '#666' }}>
                     Voltar e Editar
                 </button>
                 <button className="btn-secondary" onClick={handleRestart}>

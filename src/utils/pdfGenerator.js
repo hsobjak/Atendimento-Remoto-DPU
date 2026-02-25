@@ -338,5 +338,91 @@ export const generatePDF = async (data, result) => {
         doc.setTextColor(0);
     }
 
+    // ─── PÁGINA ADICIONAL: COMUNICADO DE INDEFERIMENTO (Somente se NOT_ELIGIBLE) ───
+    if (result.status === 'NOT_ELIGIBLE') {
+        doc.addPage();
+        y = 25;
+
+        // Título Centralizado e Sublinhado
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        const title1 = "COMUNICADO DE INDEFERIMENTO DA ASSISTÊNCIA e ARQUIVAMENTO DO PAJ";
+        doc.text(title1, pageWidth / 2, y, { align: 'center' });
+        doc.setDrawColor(0);
+        doc.line(margin + 10, y + 1, pageWidth - margin - 10, y + 1);
+        y += 15;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(0);
+
+        const texto1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 134, de 07 de dezembro de 2016, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até R$ 2.000,00 (dois mil reais).`;
+        const splitT1 = doc.splitTextToSize(texto1, pageWidth - 2 * margin);
+        doc.text(splitT1, margin, y);
+        y += splitT1.length * 5 + 8;
+
+        const texto2 = `Na pesquisa socioeconômica realizada, ficou demonstrado que sua renda bruta familiar é superior ao limite estabelecido.`;
+        const splitT2 = doc.splitTextToSize(texto2, pageWidth - 2 * margin);
+        doc.text(splitT2, margin, y);
+        y += splitT2.length * 5 + 6;
+
+        // Caixa de Renda Bruta
+        doc.setFont("helvetica", "bold");
+        doc.text("Renda bruta declarada:", margin + 20, y);
+        doc.setFillColor(230);
+        doc.rect(margin + 75, y - 4, 30, 6, 'F');
+        doc.text(`R$ ${(data.totalFamilyIncome || 0).toFixed(2)}`, margin + 90, y, { align: 'center' });
+        y += 12;
+
+        const texto3 = `As despesas ordinárias e comuns (água, luz, telefone, alimentação, moradia, etc) e aquelas que evidenciam gastos não compatíveis com a condição de pobreza (plano de saúde, tv por assinatura, escolas privadas etc) não são dedutíveis para fins de atendimento. Somente gastos extraordinários com saúde decorrentes de moléstia ou acidente e os gastos extraordinários considerados indispensáveis, temporários e imprevistos poderão ser deduzidos da renda bruta familiar (art. 5º da Resolução 133/2016 do CSDPU).`;
+        const splitT3 = doc.splitTextToSize(texto3, pageWidth - 2 * margin);
+        doc.text(splitT3, margin, y);
+        y += splitT3.length * 5 + 8;
+
+        // Gastos extraordinários
+        const totalSaude = (data.financial?.deductionItems || []).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
+        doc.setFont("helvetica", "normal");
+        doc.text("Gastos extraordinários com saúde decorrentes de moléstia ou acidente declarados:", margin, y);
+        doc.setFillColor(230);
+        doc.rect(pageWidth - margin - 30, y - 4, 30, 6, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.text(`R$ ${totalSaude.toFixed(2)}`, pageWidth - margin - 15, y, { align: 'center' });
+        y += 8;
+
+        doc.setFont("helvetica", "normal");
+        doc.text("Gastos extraordinários diversos (indispensáveis, temporários e imprevistos) declarados:", margin, y);
+        doc.setFillColor(230);
+        doc.rect(pageWidth - margin - 30, y - 4, 30, 6, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.text(`R$ 0.00`, pageWidth - margin - 15, y, { align: 'center' }); // Placeholder as we don't separate these types yet
+        y += 12;
+
+        // Bloco Cinza de Conclusão
+        doc.setFillColor(220);
+        doc.rect(margin, y, pageWidth - 2 * margin, 85, 'F');
+        y += 8;
+        doc.setFontSize(10);
+
+        const textoConclusao = `Considerando que a renda familiar bruta declarada ultrapassa o parâmetro definido na Resolução nº 134/2016, do CSDPU, fica o requerente intimado do INDEFERIMENTO do requerimento de assistência jurídica gratuita e, consequentemente, do arquivamento do Procedimento de Assistência Jurídica - PAJ.`;
+        const splitC = doc.splitTextToSize(textoConclusao, pageWidth - 2 * margin - 10);
+        doc.text(splitC, margin + 5, y);
+        y += splitC.length * 5 + 8;
+
+        const textoCiente = `O requerente fica ciente de que, em razão do indeferimento da assistência jurídica gratuita, não haverá prática de qualquer ato, administrativo ou judicial, em seu favor, e que eventuais prazos judiciais existentes continuam em curso, normalmente.`;
+        const splitCi = doc.splitTextToSize(textoCiente, pageWidth - 2 * margin - 10);
+        doc.text(splitCi, margin + 5, y);
+        y += splitCi.length * 5 + 8;
+
+        const textoRecurso = `Caso não concorde com o indeferimento, o requerente poderá, no prazo de 30 dias, apresentar documentação complementar que prove sua condição de pobreza, juntamente com os comprovantes de renda de todos os integrantes da família (contracheque, carteira de trabalho e cópia da última declaração de imposto de renda, se houver declarado) e com comprovantes dos gastos extraordinários dedutíveis, se houver.`;
+        const splitR = doc.splitTextToSize(textoRecurso, pageWidth - 2 * margin - 10);
+        doc.text(splitR, margin + 5, y);
+        y += splitR.length * 5 + 8;
+
+        const textoAnalise = `Apresentada a documentação, será reanalisado o requerimento pelo Defensor Público responsável, que poderá manter o arquivamento ou deferir a assistência jurídica solicitada, caso considere provada a condição de pobreza.`;
+        const splitA = doc.splitTextToSize(textoAnalise, pageWidth - 2 * margin - 10);
+        doc.text(splitA, margin + 5, y);
+        y += 10;
+    }
+
     doc.save('relatorio_dpu.pdf');
 };

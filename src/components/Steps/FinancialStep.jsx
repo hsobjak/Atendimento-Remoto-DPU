@@ -16,8 +16,23 @@ const FinancialStep = () => {
     // Local state for new deduction item
     const [newDeduction, setNewDeduction] = useState({ description: '', value: '' });
 
+    const updateDemand = (field, value) => {
+        updateData('demand', { [field]: value });
+    };
+
+    const updateDeclaration = (field, value) => {
+        updateData('demand', {
+            declarations: { ...data.demand?.declarations, [field]: value }
+        });
+    };
+
     const handleNext = () => {
-        navigate('/step/4');
+        // Validation for declarations
+        if (!data.demand?.declarations?.truthfulness || !data.demand?.declarations?.hyposufficiency) {
+            alert("É necessário aceitar as declarações de veracidade e hipossuficiência.");
+            return;
+        }
+        navigate('/result');
     };
 
     const updateExpense = (field, value) => {
@@ -394,9 +409,91 @@ const FinancialStep = () => {
                 </div>
             )}
 
+            {/* ── Contexto da Demanda ── */}
+            <h3 style={{ fontSize: '1rem', color: '#444', marginTop: '28px', marginBottom: '16px' }}>4. Contexto da Demanda</h3>
+
+            <div className="form-group">
+                <label className="form-label">Tipo de Demanda</label>
+                <select className="form-control" value={data.demand?.type} onChange={e => updateDemand('type', e.target.value)}>
+                    <option value="">Selecione...</option>
+                    <option value="Cível Geral">Cível Geral</option>
+                    <option value="Cível Saúde">Cível Saúde</option>
+                    <option value="Criminal">Criminal</option>
+                    <option value="Previdenciário">Previdenciário</option>
+                </select>
+            </div>
+
+            <div className="form-group">
+                <label className="form-label">Objeto / Pedido</label>
+                <input
+                    className="form-control"
+                    placeholder="Ex: Auxílio-Doença, Medicamento oncológico, Absolvição"
+                    value={data.demand?.object}
+                    onChange={e => updateDemand('object', e.target.value)}
+                />
+            </div>
+
+            <div className="form-group">
+                <label className="form-label">Nº Processo (Se houver)</label>
+                <input
+                    className="form-control"
+                    placeholder="Opcional"
+                    value={data.demand?.processNumber}
+                    onChange={e => updateDemand('processNumber', e.target.value)}
+                />
+            </div>
+
+            <h3 style={{ fontSize: '1rem', color: '#444', marginTop: '24px', marginBottom: '16px' }}>5. Declarações Finais</h3>
+
+            <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
+                <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '12px',
+                    background: '#f1f8e9',
+                    borderRadius: '6px',
+                    border: '1px solid #c5e1a5',
+                    cursor: 'pointer',
+                    color: '#33691e',
+                    fontWeight: 500,
+                    fontSize: '0.9rem'
+                }}>
+                    <input
+                        type="checkbox"
+                        checked={data.demand?.declarations?.truthfulness}
+                        onChange={e => updateDeclaration('truthfulness', e.target.checked)}
+                    />
+                    Atesto a veracidade das informações prestadas.
+                </label>
+
+                <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '12px',
+                    background: '#f1f8e9',
+                    borderRadius: '6px',
+                    border: '1px solid #c5e1a5',
+                    cursor: 'pointer',
+                    color: '#33691e',
+                    fontWeight: 500,
+                    fontSize: '0.9rem'
+                }}>
+                    <input
+                        type="checkbox"
+                        checked={data.demand?.declarations?.hyposufficiency}
+                        onChange={e => updateDeclaration('hyposufficiency', e.target.checked)}
+                    />
+                    Declaro hipossuficiência econômica para fins de assistência.
+                </label>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
                 <button className="btn-secondary" onClick={() => navigate('/step/2')}>Voltar</button>
-                <button className="btn-primary" onClick={handleNext}>Próximo Passo</button>
+                <button className="btn-primary" onClick={handleNext} style={{ background: '#0d47a1' }}>
+                    Finalizar Pré-Avaliação
+                </button>
             </div>
         </div>
     );
