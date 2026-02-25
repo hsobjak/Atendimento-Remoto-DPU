@@ -74,6 +74,7 @@ export const checkEligibility = (data) => {
         message: 'Não se enquadra nos critérios objetivos',
         justification: `Renda superior aos limites objetivos (Total: R$ ${netIncome.toFixed(2)} > R$ ${limitTotal.toFixed(2)}).`,
         appliedArticles,
-        alerts: ['Avaliar gastos extraordinários ou vulnerabilidades temporárias.']
+        alerts: ['Foram declarados gastos extraordinários que devem ser avaliados pelo/a Defensor/a.']
+
     };
 };

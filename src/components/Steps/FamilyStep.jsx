@@ -11,7 +11,7 @@ const FamilyStep = () => {
 
     // Local state for new member form
     const [newMember, setNewMember] = useState({
-        name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0'
+        name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0', cpf: ''
     });
     const [editIndex, setEditIndex] = useState(null);
 
@@ -37,7 +37,7 @@ const FamilyStep = () => {
         updateData('family', { members: updatedMembers });
 
         // Reset form
-        setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0' });
+        setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0', cpf: '' });
     };
 
     const handleEditMember = (index) => {
@@ -89,70 +89,77 @@ const FamilyStep = () => {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                    <div>
+                        <label className="form-label">CPF (Opcional)</label>
+                        <input className="form-control" placeholder="000.000.000-00" value={newMember.cpf} onChange={e => setNewMember({ ...newMember, cpf: e.target.value })} />
+                    </div>
                     <div>
                         <label className="form-label">Idade</label>
                         <input type="number" className="form-control" value={newMember.age} onChange={e => setNewMember({ ...newMember, age: e.target.value })} />
                     </div>
-                    <div>
-                        <label className="form-label">Origem da Renda</label>
-                        <select className="form-control" value={newMember.incomeSource} onChange={e => setNewMember({ ...newMember, incomeSource: e.target.value, benefitType: '' })}>
-                            <option value="Sem Renda">Sem Renda</option>
-                            <option value="Trabalho Formal">Trabalho Formal (CLT)</option>
-                            <option value="Informal/Autônomo">Informal/Autônomo</option>
-                            <option value="Benefício Social">Benefício Social</option>
-                            <option value="Aposentadoria">Aposentadoria/Pensão</option>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                    <label className="form-label">Origem da Renda</label>
+                    <select className="form-control" value={newMember.incomeSource} onChange={e => setNewMember({ ...newMember, incomeSource: e.target.value, benefitType: '' })}>
+                        <option value="Sem Renda">Sem Renda</option>
+                        <option value="Trabalho Formal">Trabalho Formal (CLT)</option>
+                        <option value="Informal/Autônomo">Informal/Autônomo</option>
+                        <option value="Benefício Social">Benefício Social</option>
+                        <option value="Aposentadoria">Aposentadoria/Pensão</option>
+                    </select>
+                </div>
+
+
+                {/* Campo condicional: tipo de benefício social */}
+                {newMember.incomeSource === 'Benefício Social' && (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">Qual benefício?</label>
+                        <select
+                            className="form-control"
+                            value={newMember.benefitType}
+                            onChange={e => setNewMember({ ...newMember, benefitType: e.target.value })}
+                        >
+                            <option value="">Selecione o benefício...</option>
+                            <option value="BPC">BPC – Benefício de Prestação Continuada</option>
+                            <option value="Bolsa Família">Bolsa Família</option>
+                            <option value="Outro">Outro benefício social</option>
                         </select>
+                        {(newMember.benefitType === 'BPC' || newMember.benefitType === 'Bolsa Família') && (
+                            <div style={{
+                                marginTop: '8px',
+                                padding: '10px 14px',
+                                background: '#fff3cd',
+                                border: '1px solid #ffc107',
+                                borderRadius: '6px',
+                                fontSize: '0.85rem',
+                                color: '#7d5700'
+                            }}>
+                                ⚠️ <strong>Atenção:</strong> Este benefício não será contabilizado na renda familiar, conforme portaria.
+                            </div>
+                        )}
                     </div>
-
-                    {/* Campo condicional: tipo de benefício social */}
-                    {newMember.incomeSource === 'Benefício Social' && (
-                        <div style={{ gridColumn: '1 / -1' }}>
-                            <label className="form-label">Qual benefício?</label>
-                            <select
-                                className="form-control"
-                                value={newMember.benefitType}
-                                onChange={e => setNewMember({ ...newMember, benefitType: e.target.value })}
-                            >
-                                <option value="">Selecione o benefício...</option>
-                                <option value="BPC">BPC – Benefício de Prestação Continuada</option>
-                                <option value="Bolsa Família">Bolsa Família</option>
-                                <option value="Outro">Outro benefício social</option>
-                            </select>
-                            {(newMember.benefitType === 'BPC' || newMember.benefitType === 'Bolsa Família') && (
-                                <div style={{
-                                    marginTop: '8px',
-                                    padding: '10px 14px',
-                                    background: '#fff3cd',
-                                    border: '1px solid #ffc107',
-                                    borderRadius: '6px',
-                                    fontSize: '0.85rem',
-                                    color: '#7d5700'
-                                }}>
-                                    ⚠️ <strong>Atenção:</strong> Este benefício não será contabilizado na renda familiar, conforme portaria.
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                    <label className="form-label">Valor (R$)</label>
-                    <input type="number" className="form-control" value={newMember.incomeValue} onChange={e => setNewMember({ ...newMember, incomeValue: e.target.value })} />
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="btn-secondary" style={{ flex: 1, borderStyle: editIndex !== null ? 'solid' : 'dashed' }} onClick={handleAddMember}>
-                        {editIndex !== null ? <Pencil size={16} style={{ verticalAlign: 'middle' }} /> : <Plus size={16} style={{ verticalAlign: 'middle' }} />}
-                        {editIndex !== null ? ' Salvar Alterações' : ' Adicionar Membro'}
-                    </button>
-                    {editIndex !== null && (
-                        <button className="btn-secondary" style={{ background: '#eee', color: '#666' }} onClick={handleCancelEdit}>
-                            <X size={16} style={{ verticalAlign: 'middle' }} /> Cancelar
-                        </button>
-                    )}
-                </div>
+                )}
             </div>
+
+            <div style={{ marginBottom: '16px' }}>
+                <label className="form-label">Valor (R$)</label>
+                <input type="number" className="form-control" value={newMember.incomeValue} onChange={e => setNewMember({ ...newMember, incomeValue: e.target.value })} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn-secondary" style={{ flex: 1, borderStyle: editIndex !== null ? 'solid' : 'dashed' }} onClick={handleAddMember}>
+                    {editIndex !== null ? <Pencil size={16} style={{ verticalAlign: 'middle' }} /> : <Plus size={16} style={{ verticalAlign: 'middle' }} />}
+                    {editIndex !== null ? ' Salvar Alterações' : ' Adicionar Membro'}
+                </button>
+                {editIndex !== null && (
+                    <button className="btn-secondary" style={{ background: '#eee', color: '#666' }} onClick={handleCancelEdit}>
+                        <X size={16} style={{ verticalAlign: 'middle' }} /> Cancelar
+                    </button>
+                )}
+            </div>
+
 
             {/* Lista de Membros */}
             {data.family.members.length > 0 && (
@@ -161,6 +168,7 @@ const FamilyStep = () => {
                         <thead>
                             <tr style={{ background: '#eee', textAlign: 'left' }}>
                                 <th style={{ padding: '8px' }}>Nome</th>
+                                <th style={{ padding: '8px' }}>CPF</th>
                                 <th style={{ padding: '8px' }}>Parentesco</th>
                                 <th style={{ padding: '8px' }}>Renda</th>
                                 <th style={{ padding: '8px' }}></th>
@@ -170,6 +178,7 @@ const FamilyStep = () => {
                             {data.family.members.map((m, idx) => (
                                 <tr key={idx} style={{ borderBottom: '1px solid #eee', background: editIndex === idx ? '#fff3cd' : 'transparent' }}>
                                     <td style={{ padding: '8px' }}>{m.name}</td>
+                                    <td style={{ padding: '8px' }}>{m.cpf || '-'}</td>
                                     <td style={{ padding: '8px' }}>{m.kinship}</td>
                                     <td style={{ padding: '8px' }}>
                                         {(m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família')
@@ -185,7 +194,6 @@ const FamilyStep = () => {
                             ))}
                         </tbody>
                     </table>
-
                 </div>
             )}
 

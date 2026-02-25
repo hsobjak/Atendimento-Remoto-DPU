@@ -135,6 +135,7 @@ export const generatePDF = async (data, result) => {
 
     sectionTitle('Dados do Assistido');
     row('Nome', data.personal?.name || '-');
+    row('CPF', data.personal?.cpf || '-');
 
     const { street, number, neighborhood, zipCode, complement } = data.personal || {};
     const fullAddress = street
@@ -151,24 +152,25 @@ export const generatePDF = async (data, result) => {
         doc.text('Nenhum membro informado.', margin, y);
         y += 5;
     } else {
-        const colX = [margin, margin + 45, margin + 75, margin + 100, margin + 140];
+        const colX = [margin, margin + 40, margin + 70, margin + 85, margin + 115, margin + 150];
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.setFillColor(240, 245, 240);
         doc.rect(margin, y - 3, pageWidth - 2 * margin, 4.5, 'F');
-        ['Nome', 'Parentesco', 'Idade', 'Origem', 'Renda'].forEach((h, i) => doc.text(h, colX[i], y));
+        ['Nome', 'CPF', 'Parentesco', 'Idade', 'Origem', 'Renda'].forEach((h, i) => doc.text(h, colX[i], y));
         doc.setFont("helvetica", "normal");
         y += 4.5;
         members.forEach((m) => {
             checkPageBreak(5);
             const isBpcBolsa = m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família';
             const rendaStr = isBpcBolsa ? m.benefitType : (parseFloat(m.incomeValue) > 0 ? `R$ ${parseFloat(m.incomeValue).toFixed(2)}` : 'R$ 0,00');
-            doc.text(String(m.name || '-').substring(0, 20), colX[0], y);
-            doc.text(String(m.kinship || '-').substring(0, 12), colX[1], y);
-            doc.text(String(m.age || '-'), colX[2], y);
-            doc.text(String(isBpcBolsa ? 'Benefício' : (m.incomeSource || '-')).substring(0, 15), colX[3], y);
+            doc.text(String(m.name || '-').substring(0, 18), colX[0], y);
+            doc.text(String(m.cpf || '-').substring(0, 14), colX[1], y);
+            doc.text(String(m.kinship || '-').substring(0, 12), colX[2], y);
+            doc.text(String(m.age || '-'), colX[3], y);
+            doc.text(String(isBpcBolsa ? 'Benefício' : (m.incomeSource || '-')).substring(0, 15), colX[4], y);
             if (isBpcBolsa) doc.setTextColor(120);
-            doc.text(rendaStr, colX[4], y);
+            doc.text(rendaStr, colX[5], y);
             doc.setTextColor(0);
             y += 4.5;
         });
