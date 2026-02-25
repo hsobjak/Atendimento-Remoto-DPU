@@ -188,17 +188,36 @@ export const generatePDF = async (data, result) => {
     const customExp = (data.financial?.customExpenses || []).filter(e => parseFloat(e.value) > 0);
     const dedItems = data.financial?.deductionItems || [];
 
-    if (filledExp.length === 0 && customExp.length === 0 && dedItems.length === 0) {
+    if (filledExp.length === 0 && customExp.length === 0) {
         doc.setFont("helvetica", "italic");
-        doc.text('Nenhuma despesa ou dedução informada.', margin, y);
+        doc.text('Nenhum gasto comum informado.', margin, y);
         y += 5;
     } else {
         filledExp.forEach(([k, label]) => row(label, `R$ ${parseFloat(exp[k]).toFixed(2)}`));
         customExp.forEach(item => row(item.description, `R$ ${parseFloat(item.value).toFixed(2)}`));
-        dedItems.forEach(item => row(`DEDUÇÃO: ${item.description}`, `R$ ${parseFloat(item.value).toFixed(2)}`));
+    }
+
+    if (dedItems.length > 0) {
+        y += 8;
+        sectionTitle('Gastos Extraordinários (Deduções)');
+        doc.setTextColor(198, 40, 40); // Red
+        doc.setFont("helvetica", "bold");
+
+        dedItems.forEach(item => {
+            checkPageBreak(5);
+            const labelText = `${item.description}: `;
+            doc.text(labelText, margin, y);
+            const labelWidth = doc.getTextWidth(labelText);
+            doc.text(`R$ ${parseFloat(item.value).toFixed(2)}`, margin + labelWidth + 2, y);
+            y += 4.5;
+        });
+
+        doc.setTextColor(0); // Reset color
+        doc.setFont("helvetica", "normal");
     }
 
     checkPageBreak(30);
+
     y += 8; // Extra spacing before section
     sectionTitle('Declaração e Assinatura');
     const decl = doc.splitTextToSize('Declaro a veracidade das informações e estou ciente das penalidades legais.', pageWidth - 2 * margin);
