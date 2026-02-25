@@ -36,6 +36,10 @@ const FamilyStep = () => {
     };
 
     const handleNext = () => {
+        if (data.family.members.length === 0) {
+            alert("É obrigatório informar a composição familiar e a renda. Adicione ao menos um membro (o próprio assistido, se for o caso).");
+            return;
+        }
         navigate('/step/3');
     };
 

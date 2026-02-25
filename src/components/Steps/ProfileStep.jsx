@@ -9,8 +9,8 @@ const ProfileStep = () => {
 
     const handleNext = () => {
         // Basic validation
-        if (!data.personal.name || !data.personal.cpf) {
-            alert("Preencha ao menos Nome e CPF.");
+        if (!data.personal.name || !data.personal.cpf || !data.personal.address) {
+            alert("Preencha todos os campos obrigatórios: Nome, CPF e Endereço.");
             return;
         }
         navigate('/step/2');
@@ -31,13 +31,13 @@ const ProfileStep = () => {
             <h3 style={{ fontSize: '1.1rem', marginTop: '20px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Identificação</h3>
 
             <div className="form-group">
-                <label className="form-label">Nome Completo</label>
+                <label className="form-label">Nome Completo *</label>
                 <input className="form-control" value={data.personal.name} onChange={e => updatePersonal('name', e.target.value)} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
-                    <label className="form-label">CPF</label>
+                    <label className="form-label">CPF *</label>
                     <input className="form-control" placeholder="000.000.000-00" value={data.personal.cpf} onChange={e => updatePersonal('cpf', e.target.value)} />
                 </div>
                 <div className="form-group">
@@ -66,7 +66,7 @@ const ProfileStep = () => {
             </div>
 
             <div className="form-group">
-                <label className="form-label">Endereço Completo</label>
+                <label className="form-label">Endereço Completo *</label>
                 <input className="form-control" placeholder="Rua, Nº, Bairro, Cidade-UF" value={data.personal.address} onChange={e => updatePersonal('address', e.target.value)} />
             </div>
 
