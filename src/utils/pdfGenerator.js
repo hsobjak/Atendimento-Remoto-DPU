@@ -216,35 +216,68 @@ export const generatePDF = async (data, result) => {
         doc.setFontSize(9);
         doc.setTextColor(0);
 
-        const t1 = `A Resolução nº 134/2016 do Conselho Superior da DPU estabelece presunção de necessidade para renda familiar bruta de até R$ 2.000,00. No caso avaliado, sua renda familiar bruta é superior a esse limite:`;
+        const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 134, de 07 de dezembro de 2016, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até R$ 2.000,00 (dois mil reais).`;
         const s1 = doc.splitTextToSize(t1, pageWidth - 2 * margin);
         doc.text(s1, margin, y);
         y += s1.length * 4 + 4;
 
-        doc.setFillColor(245, 250, 245);
-        doc.roundedRect(pageWidth / 2 - 45, y - 4, 90, 7, 1, 1, 'F');
-        doc.setFont("helvetica", "bold");
-        doc.text(`Renda Bruta Declarada: R$ ${(data.totalFamilyIncome || 0).toFixed(2)}`, pageWidth / 2, y + 0.5, { align: 'center' });
-        y += 9;
+        doc.text(`Na pesquisa socioeconômica realizada, ficou demonstrado que sua renda bruta familiar é superior ao limite estabelecido.`, margin, y);
+        y += 6;
 
-        doc.setFont("helvetica", "normal");
-        const t2 = `Somente gastos extraordinários com saúde decorrentes de moléstia ou acidente e gastos indispensáveis, imprevistos e temporários podem ser deduzidos da renda bruta (Res. 133/2016).`;
-        const s2 = doc.splitTextToSize(t2, pageWidth - 2 * margin);
+        doc.setFont("helvetica", "bold");
+        doc.text(`Renda bruta declarada:`, margin + 30, y);
+        doc.setFillColor(230);
+        doc.rect(margin + 75, y - 4, 30, 6, 'F');
+        doc.text(`R$ ${(data.totalFamilyIncome || 0).toFixed(2)}`, margin + 90, y, { align: 'center' });
+        y += 10;
+
+        doc.setFont("helvetica", "bold");
+        const t2_bold = `As despesas ordinárias e comuns (água, luz, telefone, alimentação, moradia, etc) e aquelas que evidenciam gastos não compatíveis com a condição de pobreza (plano de saúde, tv por assinatura, escolas privadas etc) não são dedutíveis para fins de atendimento. Somente gastos extraordinários com saúde decorrentes de moléstia ou acidente e os gastos extraordinários considerados indispensáveis, temporários e imprevistos poderão ser deduzidos da renda bruta familiar (art. 5º da Resolução 133/2016 do CSDPU).`;
+        const s2 = doc.splitTextToSize(t2_bold, pageWidth - 2 * margin);
         doc.text(s2, margin, y);
-        y += s2.length * 4 + 5;
+        y += s2.length * 4 + 6;
 
         const totS = (data.financial?.deductionItems || []).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
-        doc.text(`• Gastos extraordinários com saúde declarados: R$ ${totS.toFixed(2)}`, margin, y); y += 4.5;
-        doc.text(`• Outros gastos extraordinários declarados: R$ 0.00`, margin, y); y += 8;
+        doc.setFont("helvetica", "normal");
+        doc.text(`Gastos extraordinários com saúde decorrentes de moléstia ou acidente declarados:`, margin, y);
+        doc.setFillColor(230);
+        doc.rect(pageWidth - margin - 25, y - 4, 25, 6, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.text(`R$ ${totS.toFixed(2)}`, pageWidth - margin - 12.5, y, { align: 'center' });
+        y += 6;
 
-        doc.setFillColor(248);
-        doc.rect(margin, y, pageWidth - 2 * margin, 65, 'F');
+        doc.setFont("helvetica", "normal");
+        doc.text(`Gastos extraordinários diversos (indispensáveis, temporários e imprevistos) declarados:`, margin, y);
+        doc.setFillColor(230);
+        doc.rect(pageWidth - margin - 25, y - 4, 25, 6, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.text(`R$ 0.00`, pageWidth - margin - 12.5, y, { align: 'center' });
+        y += 10;
+
+        doc.setFillColor(230);
+        doc.rect(margin, y, pageWidth - 2 * margin, 75, 'F');
         y += 5;
-        doc.setTextColor(30);
-        doc.setFontSize(8.5);
-        const tC = `Fica o requerente intimado do INDEFERIMENTO do pedido e arquivamento do PAJ por ultrapassar o limite legal.\n\nNão haverá atos em seu favor e prazos judiciais seguem correndo. Caso discorde, apresente documentação complementar em 30 dias para reanálise pelo Defensor Público responsável.`;
-        const sC = doc.splitTextToSize(tC, pageWidth - 2 * margin - 10);
-        doc.text(sC, margin + 5, y);
+
+        doc.setFont("helvetica", "bold");
+        const c1 = `Considerando que a renda familiar bruta declarada ultrapassa o parâmetro definido na Resolução nº 134/2016, do CSDPU, fica o requerente intimado do INDEFERIMENTO do requerimento de assistência jurídica gratuita e, consequentemente, do arquivamento do Procedimento de Assistência Jurídica - PAJ.`;
+        const sc1 = doc.splitTextToSize(c1, pageWidth - 2 * margin - 10);
+        doc.text(sc1, margin + 5, y);
+        y += sc1.length * 4 + 4;
+
+        const c2 = `O requerente fica ciente de que, em razão do indeferimento da assistência jurídica gratuita, não haverá prática de qualquer ato, administrativo ou judicial, em seu favor, e que eventuais prazos judiciais existentes continuam em curso, normalmente.`;
+        const sc2 = doc.splitTextToSize(c2, pageWidth - 2 * margin - 10);
+        doc.text(sc2, margin + 5, y);
+        y += sc2.length * 4 + 4;
+
+        doc.setFont("helvetica", "normal");
+        const c3 = `Caso não concorde com o indeferimento, o requerente poderá, no prazo de 30 dias, apresentar documentação complementar que prove sua condição de pobreza, juntamente com os comprovantes de renda de todos os integrantes da família (contracheque, carteira de trabalho e cópia da última declaração de imposto de renda, se houver declarado) e com comprovantes dos gastos extraordinários dedutíveis, se houver.`;
+        const sc3 = doc.splitTextToSize(c3, pageWidth - 2 * margin - 10);
+        doc.text(sc3, margin + 5, y);
+        y += sc3.length * 4 + 4;
+
+        const c4 = `Apresentada a documentação, será reanalisado o requerimento pelo Defensor Público responsável, que poderá manter o arquivamento ou deferir a assistência jurídica solicitada, caso considere provada a condição de pobreza.`;
+        const sc4 = doc.splitTextToSize(c4, pageWidth - 2 * margin - 10);
+        doc.text(sc4, margin + 5, y);
 
         doc.setFontSize(7.5);
         doc.setTextColor(150);
