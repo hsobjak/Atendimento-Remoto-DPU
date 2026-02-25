@@ -1,19 +1,13 @@
 import { SALARIO_MINIMO, LIMITES, TIPOS_DEMANDA } from './constants';
 
 export const calculateNetIncome = (data) => {
-    // Gross Income comes from Family Members sum
+    // Gross Income comes from Family Members sum (BPC and Bolsa Família already excluded)
     const gross = data.totalFamilyIncome || 0;
 
-    // Deductions
-    let deductions = 0;
-
-    // Standard limits if specific logic needed, but currently deduction logic in DPU is specific (previdenciario, IR, Saude, Alimentos).
-    // The Prompt Step 3 says "Deduções Extras (Não-Automáticas)".
-    // Let's assume the expenses listed (Rent, Water, etc) are INFORMATIONAL unless specified as deductible by law.
-    // Usually core deductions are Health and some others. 
-    // For the purpose of this tool, we will subtract the "Extra Deduction" field which the operator explicitly justifies.
-
-    deductions += (parseFloat(data.financial?.extraDeduction?.value) || 0);
+    // Sum all deduction items (described individually for the report)
+    const deductions = (data.financial?.deductionItems || []).reduce(
+        (acc, item) => acc + (parseFloat(item.value) || 0), 0
+    );
 
     return Math.max(0, gross - deductions);
 };

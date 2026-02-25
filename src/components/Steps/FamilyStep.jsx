@@ -10,7 +10,7 @@ const FamilyStep = () => {
 
     // Local state for new member form
     const [newMember, setNewMember] = useState({
-        name: '', kinship: '', age: '', incomeSource: 'Sem Renda', incomeValue: '0'
+        name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0'
     });
 
     const handleAddMember = () => {
@@ -27,7 +27,7 @@ const FamilyStep = () => {
         updateData('family', { members: updatedMembers }); // Context auto-updates totalIncome
 
         // Reset form
-        setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', incomeValue: '0' });
+        setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0' });
     };
 
     const removeMember = (index) => {
@@ -71,14 +71,44 @@ const FamilyStep = () => {
                     </div>
                     <div>
                         <label className="form-label">Origem da Renda</label>
-                        <select className="form-control" value={newMember.incomeSource} onChange={e => setNewMember({ ...newMember, incomeSource: e.target.value })}>
+                        <select className="form-control" value={newMember.incomeSource} onChange={e => setNewMember({ ...newMember, incomeSource: e.target.value, benefitType: '' })}>
                             <option value="Sem Renda">Sem Renda</option>
                             <option value="Trabalho Formal">Trabalho Formal (CLT)</option>
                             <option value="Informal/Autônomo">Informal/Autônomo</option>
-                            <option value="Benefício Social (BPC/Bolsa Família)">Benefício Social</option>
+                            <option value="Benefício Social">Benefício Social</option>
                             <option value="Aposentadoria">Aposentadoria/Pensão</option>
                         </select>
                     </div>
+
+                    {/* Campo condicional: tipo de benefício social */}
+                    {newMember.incomeSource === 'Benefício Social' && (
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label className="form-label">Qual benefício?</label>
+                            <select
+                                className="form-control"
+                                value={newMember.benefitType}
+                                onChange={e => setNewMember({ ...newMember, benefitType: e.target.value })}
+                            >
+                                <option value="">Selecione o benefício...</option>
+                                <option value="BPC">BPC – Benefício de Prestação Continuada</option>
+                                <option value="Bolsa Família">Bolsa Família</option>
+                                <option value="Outro">Outro benefício social</option>
+                            </select>
+                            {(newMember.benefitType === 'BPC' || newMember.benefitType === 'Bolsa Família') && (
+                                <div style={{
+                                    marginTop: '8px',
+                                    padding: '10px 14px',
+                                    background: '#fff3cd',
+                                    border: '1px solid #ffc107',
+                                    borderRadius: '6px',
+                                    fontSize: '0.85rem',
+                                    color: '#7d5700'
+                                }}>
+                                    ⚠️ <strong>Atenção:</strong> Este benefício não será contabilizado na renda familiar, conforme portaria.
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
@@ -108,7 +138,12 @@ const FamilyStep = () => {
                                 <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                                     <td style={{ padding: '8px' }}>{m.name}</td>
                                     <td style={{ padding: '8px' }}>{m.kinship}</td>
-                                    <td style={{ padding: '8px' }}>R$ {m.incomeValue.toFixed(2)}</td>
+                                    <td style={{ padding: '8px' }}>
+                                        {(m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família')
+                                            ? <span style={{ color: '#888', fontStyle: 'italic' }}>{m.benefitType} (desconsiderado)</span>
+                                            : `R$ ${m.incomeValue.toFixed(2)}`
+                                        }
+                                    </td>
                                     <td style={{ padding: '8px', textAlign: 'right' }}>
                                         <button onClick={() => removeMember(idx)} style={{ color: '#c62828', background: 'none' }}><Trash2 size={16} /></button>
                                     </td>

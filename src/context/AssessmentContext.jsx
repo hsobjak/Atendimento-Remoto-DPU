@@ -40,10 +40,10 @@ export const AssessmentProvider = ({ children }) => {
                 health: 0,
                 transport: 0
             },
-            extraDeduction: {
-                value: 0,
-                justification: ''
-            },
+            customExpenses: [], // { description, value } - despesas extras adicionadas manualmente
+            deductionItems: [], // { description, value } - deduções em tópicos para o relatório
+            hasInvestments: '', // 'sim' | 'nao'
+            investments: [], // { description, value } - investimentos financeiros declarados
             assets: {
                 realEstate: '', // 'nao', 'sim_moradia', 'sim_extra'
                 vehicle: '' // 'nao', 'sim_trabalho', 'sim_luxo'
@@ -76,8 +76,12 @@ export const AssessmentProvider = ({ children }) => {
             };
 
             // Auto-calculate Total Income if family changes
+            // BPC is excluded from the calculation per portaria
             if (section === 'family') {
-                const total = (newData.family.members || []).reduce((acc, curr) => acc + (parseFloat(curr.incomeValue) || 0), 0);
+                const total = (newData.family.members || []).reduce((acc, curr) => {
+                    if (curr.benefitType === 'BPC' || curr.benefitType === 'Bolsa Família') return acc; // Desconsiderar conforme portaria
+                    return acc + (parseFloat(curr.incomeValue) || 0);
+                }, 0);
                 newData.totalFamilyIncome = total;
             }
 

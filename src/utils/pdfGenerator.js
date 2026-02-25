@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import { calculateNetIncome } from './businessRules';
 
 const getDataUri = (url) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const image = new Image();
         image.crossOrigin = "anonymous";
         image.onload = function () {
@@ -13,12 +13,9 @@ const getDataUri = (url) => {
             ctx.fillStyle = '#fff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(this, 0, 0);
-            resolve({
-                dataUrl: canvas.toDataURL('image/png'),
-                ratio: this.naturalWidth / this.naturalHeight
-            });
+            resolve({ dataUrl: canvas.toDataURL('image/png'), ratio: this.naturalWidth / this.naturalHeight });
         };
-        image.onerror = () => resolve(null); // Resolve null if fails
+        image.onerror = () => resolve(null);
         image.src = url;
     });
 };
@@ -28,264 +25,317 @@ export const generatePDF = async (data, result) => {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
-    let y = 20;
+    let y = margin;
 
-    // Helper to check page break
-    const checkPageBreak = (heightNeeded) => {
-        if (y + heightNeeded > pageHeight - 30) { // 30mm bottom margin for footer
-            doc.addPage();
-            y = 20; // Reset Y
-            return true;
-        }
+    // ─── Helpers ────────────────────────────────────────────────────────────
+    const checkPageBreak = (h) => {
+        if (y + h > pageHeight - 25) { doc.addPage(); y = margin; return true; }
         return false;
     };
 
-    // Header Function (to be usable on new pages if needed, but for now just first page or manual)
-    const drawHeader = async () => {
-        try {
-            const logoObj = await getDataUri('/logo_dpu_header.png');
-            if (logoObj && logoObj.dataUrl) {
-                // Determine dimensions maintaining aspect ratio
-                // Fix height, adjust width
-                const fixedHeight = 25;
-                const logoWidth = fixedHeight * logoObj.ratio;
-
-                doc.addImage(logoObj.dataUrl, 'PNG', margin, y, logoWidth, fixedHeight);
-
-                doc.setFontSize(14); // Smaller title
-                doc.setTextColor(0, 59, 40);
-
-                // Adjust text position based on logo width
-                const textX = margin + logoWidth + 5;
-
-                doc.text('Defensoria Pública da União', textX, y + 8);
-
-                doc.setFontSize(9);
-                doc.setTextColor(100);
-                doc.text('Garantia de Assistência Jurídica Integral e Gratuita', textX, y + 14);
-                doc.text('Relatório Socioeconômico de Pré-Avaliação', textX, y + 20);
-
-                y += 35;
-            } else {
-                // Fallback text only
-                doc.setFontSize(16);
-                doc.setTextColor(0, 59, 40);
-                doc.text('Defensoria Pública da União', margin, y);
-                y += 20;
-            }
-        } catch (e) {
-            console.error("Logo error", e);
-            y += 20;
-        }
-
-        doc.setDrawColor(200);
-        doc.line(margin, y - 5, pageWidth - margin, y - 5);
-    };
-
-    await drawHeader();
-
-    // Section 1: Result
-    doc.setFontSize(14);
-    doc.setTextColor(0);
-    doc.text('Resultado da Avaliação: ' + result.message.toUpperCase(), margin, y);
-    y += 8;
-
-    doc.setFontSize(10);
-    // Split text to fit width
-    const splitJustification = doc.splitTextToSize('Justificativa: ' + result.justification, pageWidth - 2 * margin);
-    doc.text(splitJustification, margin, y);
-    y += splitJustification.length * 5 + 5;
-
-    if (result.alerts.length > 0) {
-        checkPageBreak(20);
-        doc.setTextColor(200, 0, 0);
-        const alertText = doc.splitTextToSize('Alertas: ' + result.alerts.join(', '), pageWidth - 2 * margin);
-        doc.text(alertText, margin, y);
-        doc.setTextColor(0);
-        y += alertText.length * 5 + 10;
-    }
-
-    // Section 2: Requerente
-    checkPageBreak(60);
-    doc.setFontSize(12);
-    doc.setTextColor(0, 59, 40);
-    doc.text('Dados do Requerente', margin, y);
-    y += 8;
-    doc.setFontSize(10);
-    doc.setTextColor(0);
-
-    const personalInfo = [
-        `Nome: ${data.personal?.name || '-'}`,
-        `CPF: ${data.personal?.cpf || '-'}`,
-        `RG: ${data.personal?.rg || '-'}`,
-        `Nascimento: ${data.personal?.birthDate || '-'}`,
-        `Profissão: ${data.personal?.profession || '-'}`,
-        `Endereço: ${data.personal?.address || '-'}`,
-        `Telefone: ${data.personal?.phone || '-'}`
-    ];
-
-    personalInfo.forEach(line => {
-        checkPageBreak(7);
-        doc.text(line, margin, y);
-        y += 5;
-    });
-
-    // Family Members List
-    y += 5;
-    checkPageBreak(40);
-    doc.setFont("helvetica", "bold");
-    doc.text('Composição Familiar', margin, y);
-    doc.setFont("helvetica", "normal");
-    y += 5;
-
-    // Combine Applicant + Members for display
-    const allMembers = [
-        {
-            name: data.personal?.name || 'Requerente',
-            kinship: 'Requerente (Próprio)',
-            incomeValue: 0, // Fallback, though usually redundant as FamilyStep adds Applicant to members
-            age: data.personal?.age || '-'
-        },
-        ...(data.family?.members || [])
-    ];
-
-    // If data.family.members ALREADY contains the applicant (depending on FamilyStep logic), we might duplicate.
-    // In FamilyStep, the applicant is usually added to the members list implicitly or explicitly.
-    // Looking at the screenshot provided earlier, "Marcos Silva" is in the list.
-    // If the Context separates them, we merge. If Applicant is in members array, we just use members array.
-    // Let's rely on data.family.members if it's populated, otherwise fallback to manual merge.
-
-    const membersToDisplay = data.family?.members && data.family.members.length > 0
-        ? data.family.members
-        : allMembers.slice(0, 1); // Just applicant if empty
-
-    membersToDisplay.forEach(member => {
-        checkPageBreak(15);
-
-        let incomeStr;
-        const val = parseFloat(member.incomeValue);
-
-        if (member.incomeValue === 0 || member.incomeValue === '0' || isNaN(val) || val === 0) {
-            incomeStr = 'Sem Renda';
-        } else {
-            incomeStr = `R$ ${val.toFixed(2)}`;
-        }
-
-        const info = `${member.name} (${member.kinship || 'Outro'}) - ${member.age || '?'} anos - Renda: ${incomeStr}`;
-        doc.text(info, margin, y);
-        y += 5;
-    });
-
-    // Demand
-    y += 5;
-    checkPageBreak(40);
-    doc.setFont("helvetica", "bold");
-    doc.text('Dados da Demanda', margin, y);
-    doc.setFont("helvetica", "normal");
-    y += 5;
-
-    doc.text(`Tipo de Demanda: ${data.demand?.type || '-'}`, margin, y); y += 5;
-    doc.text(`Objeto: ${data.demand?.object || '-'}`, margin, y); y += 5;
-    doc.text(`Processo: ${data.demand?.processNumber || 'Sem processo'}`, margin, y); y += 5;
-
-    const priorities = [];
-    if (data.personal?.priorities?.elderly) priorities.push('Idoso');
-    if (data.personal?.priorities?.pwd) priorities.push('PCD');
-    doc.text(`Prioridades: ${priorities.length ? priorities.join(', ') : 'Nenhuma'}`, margin, y);
-    y += 10;
-
-    // Section 3: Financeiro
-    checkPageBreak(60);
-    doc.setFontSize(12);
-    doc.setTextColor(0, 59, 40);
-    doc.text('Análise Financeira e Patrimonial', margin, y);
-    y += 8;
-    doc.setFontSize(10);
-    doc.setTextColor(0);
-
-    const netIncome = calculateNetIncome(data);
-    const totalMembers = data.family.members.length || 1;
-    const perCapita = netIncome / totalMembers;
-
-    doc.text(`Membros do Núcleo Familiar: ${totalMembers}`, margin, y); y += 5;
-    doc.text(`Renda Familiar Bruta: R$ ${data.totalFamilyIncome?.toFixed(2)}`, margin, y); y += 5;
-    doc.text(`Deduções Extras: R$ ${data.financial?.extraDeduction?.value?.toFixed(2) || '0.00'}`, margin, y); y += 5;
-    doc.text(`Renda Líquida: R$ ${netIncome.toFixed(2)}`, margin, y); y += 5;
-    doc.text(`Renda Per Capita: R$ ${perCapita.toFixed(2)}`, margin, y); y += 10;
-
-    // Expenses table simulation
-    checkPageBreak(40);
-    doc.setFont("helvetica", "bold");
-    doc.text('Despesas Declaradas', margin, y);
-    doc.setFont("helvetica", "normal");
-    y += 5;
-    const exp = data.financial?.expenses || {};
-    doc.text(`Habitação (Aluguel/Água/Luz): R$ ${(parseFloat(exp.rent || 0) + parseFloat(exp.water || 0) + parseFloat(exp.light || 0)).toFixed(2)}`, margin, y); y += 5;
-    doc.text(`Saúde/Alimentação: R$ ${(parseFloat(exp.health || 0) + parseFloat(exp.food || 0)).toFixed(2)}`, margin, y); y += 5;
-    doc.text(`Transporte: R$ ${parseFloat(exp.transport || 0).toFixed(2)}`, margin, y); y += 10;
-
-    // Assets
-    checkPageBreak(30);
-    doc.setFont("helvetica", "bold");
-    doc.text('Patrimônio', margin, y);
-    doc.setFont("helvetica", "normal");
-    y += 5;
-    const assetMap = {
-        'nao': 'Não Possui',
-        'sim_moradia': 'Único Imóvel (Moradia)',
-        'sim_extra': 'Outros Imóveis',
-        'sim_trabalho': 'Veículo de Trabalho',
-        'sim_luxo': 'Veículo de Luxo'
-    };
-    doc.text(`Imóveis: ${assetMap[data.financial?.assets?.realEstate] || '-'}`, margin, y); y += 5;
-    doc.text(`Veículos: ${assetMap[data.financial?.assets?.vehicle] || '-'}`, margin, y); y += 10;
-
-    // Section 4: Documentos
-    if (data.documents.files.length > 0) {
-        checkPageBreak(40);
-        doc.setFontSize(12);
+    const sectionTitle = (text) => {
+        checkPageBreak(12);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
         doc.setTextColor(0, 59, 40);
-        doc.text('Análise Documental (IA)', margin, y);
-        y += 8;
+        doc.text(text, margin, y);
+        doc.setDrawColor(0, 59, 40);
+        doc.line(margin, y + 1, pageWidth - margin, y + 1);
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.setTextColor(0);
+        y += 8;
+    };
 
-        data.documents.files.forEach(d => {
-            checkPageBreak(15);
-            let statusText = d.inconsistency === 'none' ? 'Validado' : 'INCONSISTÊNCIA';
-            let color = d.inconsistency === 'none' ? [0, 0, 0] : [220, 0, 0];
-            doc.setTextColor(...color);
-            doc.text(`Arquivo: ${d.name} (${statusText})`, margin, y);
-            y += 5;
-            if (d.detectedIncome) {
-                doc.text(`Valor Detectado: R$ ${d.detectedIncome.toFixed(2)}`, margin, y);
-                y += 5;
-            }
-            if (d.foundPerson) {
-                doc.text(`Titular Identificado: ${d.foundPerson}`, margin, y);
-                y += 5;
-            }
-        });
-        doc.setTextColor(0);
+    const row = (label, value) => {
+        checkPageBreak(7);
+        doc.setFont("helvetica", "bold");
+        doc.text(`${label}:`, margin, y);
+        doc.setFont("helvetica", "normal");
+        const labelWidth = doc.getTextWidth(`${label}: `);
+        doc.text(String(value), margin + labelWidth, y);
+        y += 6;
+    };
+
+    // ─── CABEÇALHO INSTITUCIONAL ─────────────────────────────────────────────
+    // Aviso institucional em destaque (caixa colorida no topo)
+    doc.setFillColor(0, 59, 40);
+    doc.rect(0, 0, pageWidth, 14, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+    const avisoText = 'AVISO: Este documento é orientativo e NÃO substitui a análise do/a Defensor/a Público/a Federal. Uso interno.';
+    doc.text(avisoText, pageWidth / 2, 9, { align: 'center' });
+    doc.setTextColor(0);
+    y = 18;
+
+    // Logo + título
+    try {
+        const logoObj = await getDataUri('/logo_dpu_header.png');
+        if (logoObj?.dataUrl) {
+            const fixedH = 20;
+            const logoW = fixedH * logoObj.ratio;
+            doc.addImage(logoObj.dataUrl, 'PNG', margin, y, logoW, fixedH);
+            const tx = margin + logoW + 6;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(0, 59, 40);
+            doc.text('Defensoria Pública da União', tx, y + 7);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.setTextColor(80);
+            doc.text('Relatório Socioeconômico de Pré-Avaliação', tx, y + 14);
+            y += 28;
+        } else {
+            throw new Error('no logo');
+        }
+    } catch {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.setTextColor(0, 59, 40);
+        doc.text('Defensoria Pública da União', margin, y + 6);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(80);
+        doc.text('Relatório Socioeconômico de Pré-Avaliação', margin, y + 13);
+        y += 22;
     }
 
-    // Disclaimer footer on ALL pages or just at end?
-    // User requested overlap fix. Putting it at bottom of the current page if space, or new page.
+    // Linha separadora
+    doc.setDrawColor(200);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 6;
 
-    // Add page numbers
+    // Data de emissão
+    const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(`Emitido em: ${hoje}`, pageWidth - margin, y, { align: 'right' });
+    doc.setTextColor(0);
+    y += 8;
+
+    // ─── RESULTADO DA AVALIAÇÃO ─────────────────────────────────────────────
+    sectionTitle('Resultado da Avaliação');
+
+    const statusColors = {
+        'ELIGIBLE_AUTOMATIC': [46, 125, 50],
+        'NOT_ELIGIBLE': [198, 40, 40],
+        'NEEDS_ANALYSIS': [230, 120, 0],
+    };
+    const [r, g, b] = statusColors[result.status] || [0, 0, 0];
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(r, g, b);
+    doc.setFontSize(11);
+    doc.text(result.message.toUpperCase(), margin, y);
+    doc.setTextColor(0);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    y += 6;
+
+    const splitJust = doc.splitTextToSize(`Justificativa: ${result.justification}`, pageWidth - 2 * margin);
+    doc.text(splitJust, margin, y);
+    y += splitJust.length * 5 + 4;
+
+    if (result.appliedArticles?.length > 0) {
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(9);
+        doc.setTextColor(80);
+        doc.text(`Fundamentação: ${result.appliedArticles.join(' | ')}`, margin, y);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(0);
+        y += 6;
+    }
+
+    if (result.alerts?.length > 0) {
+        checkPageBreak(12);
+        doc.setTextColor(198, 40, 40);
+        doc.setFont("helvetica", "bold");
+        const alertLines = doc.splitTextToSize(`⚠ ${result.alerts.join(' | ')}`, pageWidth - 2 * margin);
+        doc.text(alertLines, margin, y);
+        doc.setTextColor(0);
+        doc.setFont("helvetica", "normal");
+        y += alertLines.length * 5 + 4;
+    }
+
+    // ─── DADOS DO ASSISTIDO ─────────────────────────────────────────────────
+    sectionTitle('Dados do Assistido');
+    row('Nome', data.personal?.name || '-');
+    row('Endereço', data.personal?.address || '-');
+    y += 2;
+
+    // ─── GRUPO FAMILIAR E RENDA ─────────────────────────────────────────────
+    sectionTitle('Grupo Familiar e Renda');
+
+    const members = data.family?.members || [];
+    if (members.length === 0) {
+        doc.text('Nenhum membro informado.', margin, y);
+        y += 6;
+    } else {
+        // Cabeçalho da tabela
+        checkPageBreak(10);
+        const colX = [margin, margin + 55, margin + 85, margin + 110, margin + 148];
+        doc.setFont("helvetica", "bold");
+        doc.setFillColor(220, 230, 220);
+        doc.rect(margin, y - 4, pageWidth - 2 * margin, 7, 'F');
+        ['Nome', 'Parentesco', 'Idade', 'Origem da Renda', 'Renda'].forEach((h, i) => {
+            doc.text(h, colX[i], y);
+        });
+        doc.setFont("helvetica", "normal");
+        y += 6;
+        doc.setDrawColor(180);
+        doc.line(margin, y - 1, pageWidth - margin, y - 1);
+
+        members.forEach((m) => {
+            checkPageBreak(8);
+            const isBpcBolsa = m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família';
+            const rendaStr = isBpcBolsa
+                ? `${m.benefitType} (desconsid.)`
+                : (parseFloat(m.incomeValue) > 0 ? `R$ ${parseFloat(m.incomeValue).toFixed(2)}` : 'Sem Renda');
+            const originStr = isBpcBolsa ? `Benefício Social` : (m.incomeSource || '-');
+
+            doc.text(String(m.name || '-').substring(0, 22), colX[0], y);
+            doc.text(String(m.kinship || '-').substring(0, 14), colX[1], y);
+            doc.text(String(m.age || '-'), colX[2], y);
+            doc.text(String(originStr).substring(0, 18), colX[3], y);
+
+            if (isBpcBolsa) { doc.setTextColor(150); }
+            doc.text(rendaStr, colX[4], y);
+            doc.setTextColor(0);
+            y += 6;
+            doc.setDrawColor(220);
+            doc.line(margin, y - 1, pageWidth - margin, y - 1);
+        });
+        y += 3;
+    }
+
+    // Totais de renda
+    const netIncome = calculateNetIncome(data);
+    const totalMem = members.length || 1;
+    const perCapita = netIncome / totalMem;
+
+    checkPageBreak(20);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Renda Familiar Bruta: R$ ${(data.totalFamilyIncome || 0).toFixed(2)}`, margin, y); y += 6;
+    if ((data.financial?.deductionItems || []).length > 0) {
+        const totalDed = (data.financial.deductionItems).reduce((a, d) => a + (parseFloat(d.value) || 0), 0);
+        doc.text(`Total de Deduções Extra-Judiciais: R$ ${totalDed.toFixed(2)}`, margin, y); y += 6;
+    }
+    doc.text(`Renda Líquida Apurada: R$ ${netIncome.toFixed(2)}`, margin, y); y += 6;
+    doc.text(`Renda Per Capita: R$ ${perCapita.toFixed(2)}`, margin, y);
+    doc.setFont("helvetica", "normal");
+    y += 8;
+
+    // ─── GASTOS DECLARADOS ──────────────────────────────────────────────────
+    sectionTitle('Gastos Declarados');
+
+    const expLabels = {
+        rent: 'Aluguel',
+        water: 'Água',
+        light: 'Luz',
+        food: 'Alimentação',
+        health: 'Saúde',
+        transport: 'Transporte',
+    };
+    const exp = data.financial?.expenses || {};
+    const filledExp = Object.entries(expLabels).filter(([k]) => parseFloat(exp[k]) > 0);
+
+    const customExp = (data.financial?.customExpenses || []).filter(e => parseFloat(e.value) > 0);
+
+    if (filledExp.length === 0 && customExp.length === 0) {
+        doc.setTextColor(100);
+        doc.setFont("helvetica", "italic");
+        doc.text('Nenhuma despesa informada.', margin, y);
+        doc.setTextColor(0);
+        doc.setFont("helvetica", "normal");
+        y += 6;
+    } else {
+        filledExp.forEach(([k, label]) => {
+            checkPageBreak(6);
+            row(label, `R$ ${parseFloat(exp[k]).toFixed(2)}`);
+        });
+        customExp.forEach(item => {
+            checkPageBreak(6);
+            row(item.description, `R$ ${parseFloat(item.value).toFixed(2)}`);
+        });
+        y += 2;
+    }
+
+    // ─── GASTOS EXTRAORDINÁRIOS / DEDUÇÕES ─────────────────────────────────
+    sectionTitle('Gastos Extraordinários (Deduções)');
+
+    const dedItems = data.financial?.deductionItems || [];
+    if (dedItems.length === 0) {
+        checkPageBreak(14);
+        doc.setFillColor(255, 243, 205);
+        doc.setDrawColor(255, 193, 7);
+        doc.roundedRect(margin, y - 1, pageWidth - 2 * margin, 10, 2, 2, 'FD');
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(9);
+        doc.setTextColor(100, 70, 0);
+        doc.text('Observação: O assistido não informou gastos extraordinários dedutíveis nesta avaliação.', margin + 3, y + 5);
+        doc.setTextColor(0);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        y += 14;
+    } else {
+        dedItems.forEach(item => {
+            checkPageBreak(6);
+            doc.text(`  • ${item.description}: R$ ${parseFloat(item.value).toFixed(2)}`, margin, y);
+            y += 6;
+        });
+        y += 2;
+    }
+
+    // ─── INVESTIMENTOS ──────────────────────────────────────────────────────
+    if (data.financial?.hasInvestments === 'sim' && (data.financial?.investments || []).length > 0) {
+        sectionTitle('Investimentos Financeiros Declarados');
+        (data.financial.investments).forEach(inv => {
+            checkPageBreak(6);
+            doc.text(`  • ${inv.description}: R$ ${parseFloat(inv.value).toFixed(2)}`, margin, y);
+            y += 6;
+        });
+        y += 2;
+    }
+
+    // ─── DECLARAÇÃO E ASSINATURA ────────────────────────────────────────────
+    checkPageBreak(60);
+    sectionTitle('Declaração e Assinatura');
+
+    const declaracao = doc.splitTextToSize(
+        'Declaro que as informações prestadas são verdadeiras e que estou ciente de que a prestação de informações falsas sujeita o declarante às penalidades previstas em lei.',
+        pageWidth - 2 * margin
+    );
+    doc.setFontSize(9);
+    doc.setTextColor(60);
+    doc.text(declaracao, margin, y);
+    y += declaracao.length * 5 + 12;
+
+    // Linha de assinatura
+    doc.setDrawColor(0);
+    doc.line(margin, y, margin + 100, y);
+    y += 5;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(60);
+    doc.text('Assinatura do Assistido(a)', margin, y);
+    y += 5;
+    doc.text(`Local e Data: ______________________, ${hoje}`, margin, y);
+    doc.setTextColor(0);
+    y += 14;
+
+    // ─── RODAPÉ COM NÚMERO DE PÁGINAS ───────────────────────────────────────
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin - 20, pageHeight - 10);
-
-        // Institutional Disclaimer fixed at bottom
-        doc.setFontSize(8);
-        doc.setTextColor(100);
+        doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
         doc.setFont("helvetica", "italic");
-        const footerText = 'AVISO: O resultado apresentado é orientativo e não substitui a análise do/a Defensor/a Público/a.';
-        doc.text(footerText, margin, pageHeight - 15);
+        doc.setFontSize(7);
+        doc.text('DPU — Defensoria Pública da União', margin, pageHeight - 8);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0);
     }
 
     doc.save('relatorio_dpu.pdf');
