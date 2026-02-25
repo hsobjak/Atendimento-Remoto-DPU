@@ -12,8 +12,13 @@ export const AssessmentProvider = ({ children }) => {
             birthDate: '',
             civilStatus: '',
             profession: '',
-            address: '',
+            street: '',
+            number: '',
+            neighborhood: '',
+            zipCode: '',
+            complement: '',
             phone: '',
+
             isRepresented: 'nao', // 'sim' or 'nao'
             representativeName: '',
             priorities: {

@@ -9,8 +9,8 @@ const ProfileStep = () => {
 
     const handleNext = () => {
         // Basic validation
-        if (!data.personal.name || !data.personal.cpf || !data.personal.address) {
-            alert("Preencha todos os campos obrigatórios: Nome, CPF e Endereço.");
+        if (!data.personal.name || !data.personal.cpf || !data.personal.street || !data.personal.number || !data.personal.neighborhood || !data.personal.zipCode) {
+            alert("Preencha todos os campos obrigatórios: Nome, CPF, Logradouro, Nº, Bairro e CEP.");
             return;
         }
         navigate('/step/2');
@@ -65,10 +65,34 @@ const ProfileStep = () => {
                 <input className="form-control" value={data.personal.profession} onChange={e => updatePersonal('profession', e.target.value)} />
             </div>
 
-            <div className="form-group">
-                <label className="form-label">Endereço Completo *</label>
-                <input className="form-control" placeholder="Rua, Nº, Bairro, Cidade-UF" value={data.personal.address} onChange={e => updatePersonal('address', e.target.value)} />
+            {/* Endereço Separado */}
+            <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                    <label className="form-label">Logradouro (Rua/Av) *</label>
+                    <input className="form-control" placeholder="Rua..." value={data.personal.street} onChange={e => updatePersonal('street', e.target.value)} />
+                </div>
+                <div className="form-group">
+                    <label className="form-label">Nº *</label>
+                    <input className="form-control" placeholder="S/N" value={data.personal.number} onChange={e => updatePersonal('number', e.target.value)} />
+                </div>
             </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                    <label className="form-label">Bairro *</label>
+                    <input className="form-control" value={data.personal.neighborhood} onChange={e => updatePersonal('neighborhood', e.target.value)} />
+                </div>
+                <div className="form-group">
+                    <label className="form-label">CEP *</label>
+                    <input className="form-control" placeholder="00000-000" value={data.personal.zipCode} onChange={e => updatePersonal('zipCode', e.target.value)} />
+                </div>
+            </div>
+
+            <div className="form-group">
+                <label className="form-label">Complemento</label>
+                <input className="form-control" placeholder="Apto, Bloco..." value={data.personal.complement} onChange={e => updatePersonal('complement', e.target.value)} />
+            </div>
+
 
             <div className="form-group">
                 <label className="form-label">Telefone</label>

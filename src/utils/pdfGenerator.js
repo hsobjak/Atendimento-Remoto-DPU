@@ -134,7 +134,14 @@ export const generatePDF = async (data, result) => {
 
     sectionTitle('Dados do Assistido');
     row('Nome', data.personal?.name || '-');
-    row('Endereço', data.personal?.address || '-');
+
+    const { street, number, neighborhood, zipCode, complement } = data.personal || {};
+    const fullAddress = street
+        ? `${street}, Nº ${number || 'S/N'}, ${neighborhood || ''}${complement ? ` (${complement})` : ''} - CEP: ${zipCode || ''}`
+        : '-';
+
+    row('Endereço', fullAddress);
+
     y += 1;
 
     sectionTitle('Grupo Familiar e Renda');
