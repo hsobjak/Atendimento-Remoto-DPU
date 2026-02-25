@@ -90,9 +90,10 @@ export const generatePDF = async (data, result) => {
         doc.text(labelText, margin, y);
         doc.setFont("helvetica", "normal");
         const labelWidth = doc.getTextWidth(labelText);
-        doc.text(String(value), margin + labelWidth, y);
+        doc.text(String(value), margin + labelWidth + 2, y); // Added + 2 for spacing
         y += 4.5;
     };
+
 
     const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -178,8 +179,10 @@ export const generatePDF = async (data, result) => {
     doc.text(`Renda Familiar Bruta: R$ ${(data.totalFamilyIncome || 0).toFixed(2)}`, margin, y + 2); y += 5;
     doc.text(`Renda Líquida Apurada: R$ ${netIncome.toFixed(2)}`, margin, y + 1); y += 5;
 
+    y += 8; // Extra spacing before section
     sectionTitle('Gastos Declarados');
     const expLabels = { rent: 'Aluguel', water: 'Água', light: 'Luz', food: 'Alimentação', health: 'Saúde', transport: 'Transporte' };
+
     const exp = data.financial?.expenses || {};
     const filledExp = Object.entries(expLabels).filter(([k]) => parseFloat(exp[k]) > 0);
     const customExp = (data.financial?.customExpenses || []).filter(e => parseFloat(e.value) > 0);
@@ -196,8 +199,10 @@ export const generatePDF = async (data, result) => {
     }
 
     checkPageBreak(30);
+    y += 8; // Extra spacing before section
     sectionTitle('Declaração e Assinatura');
     const decl = doc.splitTextToSize('Declaro a veracidade das informações e estou ciente das penalidades legais.', pageWidth - 2 * margin);
+
     doc.setFontSize(8);
     doc.text(decl, margin, y);
     y += 10;

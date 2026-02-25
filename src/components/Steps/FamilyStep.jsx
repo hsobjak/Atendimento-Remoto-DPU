@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessment } from '../../context/AssessmentContext';
 import { PARENTESCO } from '../../utils/constants';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Pencil, X } from 'lucide-react';
+
 
 const FamilyStep = () => {
     const { data, updateData } = useAssessment();
@@ -12,6 +13,7 @@ const FamilyStep = () => {
     const [newMember, setNewMember] = useState({
         name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0'
     });
+    const [editIndex, setEditIndex] = useState(null);
 
     const handleAddMember = () => {
         if (!newMember.name || !newMember.kinship) {
@@ -23,14 +25,33 @@ const FamilyStep = () => {
             incomeValue: parseFloat(newMember.incomeValue) || 0
         };
 
-        const updatedMembers = [...data.family.members, member];
-        updateData('family', { members: updatedMembers }); // Context auto-updates totalIncome
+        let updatedMembers;
+        if (editIndex !== null) {
+            updatedMembers = [...data.family.members];
+            updatedMembers[editIndex] = member;
+            setEditIndex(null);
+        } else {
+            updatedMembers = [...data.family.members, member];
+        }
+
+        updateData('family', { members: updatedMembers });
 
         // Reset form
         setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0' });
     };
 
+    const handleEditMember = (index) => {
+        setEditIndex(index);
+        setNewMember({ ...data.family.members[index] });
+    };
+
+    const handleCancelEdit = () => {
+        setEditIndex(null);
+        setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0' });
+    };
+
     const removeMember = (index) => {
+
         const updatedMembers = data.family.members.filter((_, i) => i !== index);
         updateData('family', { members: updatedMembers });
     };
@@ -120,9 +141,17 @@ const FamilyStep = () => {
                     <input type="number" className="form-control" value={newMember.incomeValue} onChange={e => setNewMember({ ...newMember, incomeValue: e.target.value })} />
                 </div>
 
-                <button className="btn-secondary" style={{ width: '100%', borderStyle: 'dashed' }} onClick={handleAddMember}>
-                    <Plus size={16} style={{ verticalAlign: 'middle' }} /> Adicionar Membro
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn-secondary" style={{ flex: 1, borderStyle: editIndex !== null ? 'solid' : 'dashed' }} onClick={handleAddMember}>
+                        {editIndex !== null ? <Pencil size={16} style={{ verticalAlign: 'middle' }} /> : <Plus size={16} style={{ verticalAlign: 'middle' }} />}
+                        {editIndex !== null ? ' Salvar Alterações' : ' Adicionar Membro'}
+                    </button>
+                    {editIndex !== null && (
+                        <button className="btn-secondary" style={{ background: '#eee', color: '#666' }} onClick={handleCancelEdit}>
+                            <X size={16} style={{ verticalAlign: 'middle' }} /> Cancelar
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Lista de Membros */}
@@ -139,7 +168,7 @@ const FamilyStep = () => {
                         </thead>
                         <tbody>
                             {data.family.members.map((m, idx) => (
-                                <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                                <tr key={idx} style={{ borderBottom: '1px solid #eee', background: editIndex === idx ? '#fff3cd' : 'transparent' }}>
                                     <td style={{ padding: '8px' }}>{m.name}</td>
                                     <td style={{ padding: '8px' }}>{m.kinship}</td>
                                     <td style={{ padding: '8px' }}>
@@ -149,12 +178,14 @@ const FamilyStep = () => {
                                         }
                                     </td>
                                     <td style={{ padding: '8px', textAlign: 'right' }}>
-                                        <button onClick={() => removeMember(idx)} style={{ color: '#c62828', background: 'none' }}><Trash2 size={16} /></button>
+                                        <button onClick={() => handleEditMember(idx)} style={{ color: '#004d40', background: 'none', marginRight: '8px' }} title="Editar"><Pencil size={16} /></button>
+                                        <button onClick={() => removeMember(idx)} style={{ color: '#c62828', background: 'none' }} title="Remover"><Trash2 size={16} /></button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+
                 </div>
             )}
 
