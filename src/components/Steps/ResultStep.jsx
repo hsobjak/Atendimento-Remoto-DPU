@@ -73,9 +73,13 @@ const ResultStep = () => {
                     <RotateCcw size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
                     Novo Atendimento
                 </button>
-                <button className="btn-primary" onClick={() => generatePDF(data, result)}>
+                <button className="btn-primary" onClick={() => generatePDF(data, result, 'complete')}>
                     <FileText size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Emitir Relatório
+                    Relatório Completo
+                </button>
+                <button className="btn-primary" onClick={() => generatePDF(data, result, 'objective')} style={{ background: '#2e7d32' }}>
+                    <FileText size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                    Relatório Objetivo
                 </button>
             </div>
 

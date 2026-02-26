@@ -20,13 +20,14 @@ const getDataUri = (url) => {
     });
 };
 
-export const generatePDF = async (data, result) => {
+export const generatePDF = async (data, result, mode = 'objective') => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     let y = margin;
 
+    const isComplete = mode === 'complete';
     const avisoText = 'AVISO: Este documento é orientativo e NÃO substitui a análise do Defensor Público Federal.';
 
     // --- Helpers ---
@@ -90,7 +91,7 @@ export const generatePDF = async (data, result) => {
         doc.text(labelText, margin, y);
         doc.setFont("helvetica", "normal");
         const labelWidth = doc.getTextWidth(labelText);
-        doc.text(String(value), margin + labelWidth + 2, y);
+        doc.text(String(value || '-'), margin + labelWidth + 2, y);
         y += 5.5;
     };
 
@@ -98,7 +99,7 @@ export const generatePDF = async (data, result) => {
     const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
     // --- PÁGINA 1: RELATÓRIO ---
-    await drawHeader('Formulário Socioeconômico');
+    await drawHeader(isComplete ? 'Formulário Socioeconômico Detalhado' : 'Formulário Socioeconômico');
 
     doc.setFontSize(9);
     doc.setTextColor(120);
@@ -135,9 +136,28 @@ export const generatePDF = async (data, result) => {
         y += splitAlerts.length * 5 + 4;
     }
 
-    sectionTitle('Dados do Assistido');
-    row('Nome', data.personal?.name || '-');
-    row('CPF', data.personal?.cpf || '-');
+    sectionTitle('1. Dados do Assistido');
+    row('Nome', data.personal?.name);
+    row('CPF', data.personal?.cpf);
+
+    if (isComplete) {
+        row('RG', data.personal?.rg);
+        row('Nascimento', data.personal?.birthDate ? new Date(data.personal.birthDate).toLocaleDateString('pt-BR') : '-');
+        row('Estado Civil', data.personal?.civilStatus);
+        row('Profissão', data.personal?.profession);
+        row('Telefone', data.personal?.phone);
+
+        const priorities = [];
+        if (data.personal?.priorities?.elderly) priorities.push('Idoso');
+        if (data.personal?.priorities?.pwd) priorities.push('PcD');
+        if (data.personal?.priorities?.illness) priorities.push('Doença Grave');
+        if (data.personal?.priorities?.urgency) priorities.push('Urgência');
+        row('Prioridades', priorities.length > 0 ? priorities.join(', ') : 'Nenhuma');
+
+        if (data.personal?.isRepresented === 'sim') {
+            row('Representado por', data.personal.representativeName);
+        }
+    }
 
     const { street, number, neighborhood, zipCode, complement } = data.personal || {};
     const fullAddress = street
@@ -148,7 +168,15 @@ export const generatePDF = async (data, result) => {
 
     y += 1;
 
-    sectionTitle('Grupo Familiar e Renda');
+    if (isComplete) {
+        sectionTitle('2. Contexto da Demanda');
+        row('Tipo', data.demand?.type);
+        row('Objeto/Pedido', data.demand?.object);
+        if (data.demand?.processNumber) row('Nº Processo', data.demand.processNumber);
+        y += 2;
+    }
+
+    sectionTitle(isComplete ? '3. Grupo Familiar e Renda' : 'Grupo Familiar e Renda');
     const members = data.family?.members || [];
     if (members.length === 0) {
         doc.text('Nenhum membro informado.', margin, y);
@@ -185,7 +213,7 @@ export const generatePDF = async (data, result) => {
     doc.text(`Renda Líquida Apurada: R$ ${netIncome.toFixed(2)}`, margin, y + 1); y += 6;
 
     y += 8; // Extra spacing before section
-    sectionTitle('Gastos Declarados');
+    sectionTitle(isComplete ? '4. Gastos Declarados' : 'Gastos Declarados');
     const expLabels = { rent: 'Aluguel', water: 'Água', light: 'Luz', food: 'Alimentação', health: 'Saúde', transport: 'Transporte' };
 
     const exp = data.financial?.expenses || {};
@@ -221,6 +249,37 @@ export const generatePDF = async (data, result) => {
         doc.setFont("helvetica", "normal");
     }
 
+    if (isComplete) {
+        y += 8;
+        sectionTitle('5. Patrimônio e Investimentos');
+        const assets = data.financial?.assets || {};
+        const assetLabels = {
+            nao: 'Não possui',
+            sim_moradia: 'Sim, único (Moradia)',
+            sim_extra: 'Sim, possui outros imóveis',
+            sim_trabalho: 'Sim, popular/trabalho',
+            sim_luxo: 'Sim, luxo/alto valor'
+        };
+        row('Imóvel', assetLabels[assets.realEstate]);
+        row('Veículo', assetLabels[assets.vehicle]);
+
+        const investments = data.financial?.investments || [];
+        if (investments.length > 0) {
+            y += 2;
+            doc.setFont("helvetica", "bold");
+            doc.text('Investimentos Financeiros:', margin, y);
+            y += 5;
+            doc.setFont("helvetica", "normal");
+            investments.forEach(inv => {
+                checkPageBreak(5);
+                doc.text(`- ${inv.description}: R$ ${parseFloat(inv.value).toFixed(2)}`, margin + 5, y);
+                y += 5;
+            });
+        } else {
+            row('Investimentos', 'Não possui');
+        }
+    }
+
     checkPageBreak(40);
     y += 10;
     sectionTitle('5. Declarações Finais');
@@ -229,10 +288,11 @@ export const generatePDF = async (data, result) => {
     y += 7;
     doc.text('[ ]  Declaro hipossuficiência econômica para fins de assistência.', margin, y);
     y += 12;
-    const sigY = Math.max(y, pageHeight - 35);
-    doc.line(margin, sigY, margin + 70, sigY);
+    y += 15;
+    checkPageBreak(10);
+    doc.line(margin, y, margin + 70, y);
     doc.setFontSize(8);
-    doc.text('Assinatura do Assistido(a)', margin, sigY + 4);
+    doc.text('Assinatura do Assistido(a)', margin, y + 4);
 
     // --- PÁGINA 2: INDEFERIMENTO ---
     if (result.status === 'NOT_ELIGIBLE') {
