@@ -62,7 +62,7 @@ export const checkEligibility = (data) => {
         appliedArticles.push('Art. 2º (Critério de Renda)');
         return {
             status: 'ELIGIBLE_AUTOMATIC',
-            message: 'Enquadra-se nos critérios objetivos',
+            message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
             justification: `Renda familiar (R$ ${netIncome.toFixed(2)}) ou per capita (R$ ${perCapita.toFixed(2)}) dentro dos limites.`,
             appliedArticles,
             alerts
@@ -71,7 +71,7 @@ export const checkEligibility = (data) => {
 
     return {
         status: 'NOT_ELIGIBLE',
-        message: 'Não se enquadra nos critérios objetivos',
+        message: 'Não se enquadra nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
         justification: `Renda superior aos limites objetivos (Total: R$ ${netIncome.toFixed(2)} > R$ ${limitTotal.toFixed(2)}).`,
         appliedArticles,
         alerts: ['Foram declarados gastos extraordinários que devem ser avaliados pelo/a Defensor/a.']

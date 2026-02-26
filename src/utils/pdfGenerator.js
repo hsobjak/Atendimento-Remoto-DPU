@@ -112,7 +112,9 @@ export const generatePDF = async (data, result) => {
     doc.setFont("helvetica", "bold");
     doc.setTextColor(r, g, b);
     doc.setFontSize(12);
-    doc.text(result.message.toUpperCase(), margin, y);
+    const splitMessage = doc.splitTextToSize(result.message.toUpperCase(), pageWidth - 2 * margin);
+    doc.text(splitMessage, margin, y);
+    y += splitMessage.length * 6;
     doc.setTextColor(0);
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
