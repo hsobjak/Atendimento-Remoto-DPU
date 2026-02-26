@@ -111,10 +111,10 @@ export const generatePDF = async (data, result) => {
     const [r, g, b] = statusColors[result.status] || [0, 0, 0];
     doc.setFont("helvetica", "bold");
     doc.setTextColor(r, g, b);
-    doc.setFontSize(12);
+    doc.setFontSize(10);
     const splitMessage = doc.splitTextToSize(result.message.toUpperCase(), pageWidth - 2 * margin);
     doc.text(splitMessage, margin, y);
-    y += splitMessage.length * 6;
+    y += splitMessage.length * 5;
     doc.setTextColor(0);
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
@@ -221,18 +221,18 @@ export const generatePDF = async (data, result) => {
         doc.setFont("helvetica", "normal");
     }
 
-    checkPageBreak(30);
-
-    y = pageHeight - 55;
+    checkPageBreak(40);
+    y += 10;
     sectionTitle('5. Declarações Finais');
     doc.setFontSize(10);
     doc.text('[ ]  Atesto a veracidade das informações prestadas.', margin, y);
     y += 7;
     doc.text('[ ]  Declaro hipossuficiência econômica para fins de assistência.', margin, y);
     y += 12;
-    doc.line(margin, y, margin + 70, y);
+    const sigY = Math.max(y, pageHeight - 35);
+    doc.line(margin, sigY, margin + 70, sigY);
     doc.setFontSize(8);
-    doc.text('Assinatura do Assistido(a)', margin, y + 4);
+    doc.text('Assinatura do Assistido(a)', margin, sigY + 4);
 
     // --- PÁGINA 2: INDEFERIMENTO ---
     if (result.status === 'NOT_ELIGIBLE') {
