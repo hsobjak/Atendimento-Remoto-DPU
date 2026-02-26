@@ -3,9 +3,36 @@ import { useNavigate } from 'react-router-dom';
 import { useAssessment } from '../../context/AssessmentContext';
 import { ESTADO_CIVIL } from '../../utils/constants';
 
+import { maskCPF, maskCEP, maskPhone } from '../../utils/masks';
+
 const ProfileStep = () => {
     const { data, updateData } = useAssessment();
     const navigate = useNavigate();
+
+    const handleCEP = async (cep) => {
+        const masked = maskCEP(cep);
+        updatePersonal('zipCode', masked);
+
+        // Se o CEP tiver 8 dígitos (sem contar o hífen da máscara), buscar endereço
+        const cleanCEP = cep.replace(/\D/g, '');
+        if (cleanCEP.length === 8) {
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cleanCEP}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    updateData('personal', {
+                        ...data.personal,
+                        street: data.logradouro || '',
+                        neighborhood: data.bairro || '',
+                        complement: data.complemento || '',
+                        zipCode: masked
+                    });
+                }
+            } catch (error) {
+                console.error("Erro ao buscar CEP:", error);
+            }
+        }
+    };
 
     const handleNext = () => {
         // Basic validation
@@ -38,7 +65,7 @@ const ProfileStep = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                     <label className="form-label">CPF *</label>
-                    <input className="form-control" placeholder="000.000.000-00" value={data.personal.cpf} onChange={e => updatePersonal('cpf', e.target.value)} />
+                    <input className="form-control" placeholder="000.000.000-00" value={data.personal.cpf} onChange={e => updatePersonal('cpf', maskCPF(e.target.value))} />
                 </div>
                 <div className="form-group">
                     <label className="form-label">RG</label>
@@ -84,7 +111,7 @@ const ProfileStep = () => {
                 </div>
                 <div className="form-group">
                     <label className="form-label">CEP *</label>
-                    <input className="form-control" placeholder="00000-000" value={data.personal.zipCode} onChange={e => updatePersonal('zipCode', e.target.value)} />
+                    <input className="form-control" placeholder="00000-000" value={data.personal.zipCode} onChange={e => handleCEP(e.target.value)} />
                 </div>
             </div>
 
@@ -96,7 +123,7 @@ const ProfileStep = () => {
 
             <div className="form-group">
                 <label className="form-label">Telefone</label>
-                <input className="form-control" placeholder="(00) 00000-0000" value={data.personal.phone} onChange={e => updatePersonal('phone', e.target.value)} />
+                <input className="form-control" placeholder="(00) 00000-0000" value={data.personal.phone} onChange={e => updatePersonal('phone', maskPhone(e.target.value))} />
             </div>
 
             {/* Representação */}

@@ -5,6 +5,8 @@ import { PARENTESCO } from '../../utils/constants';
 import { Plus, Trash2, Pencil, X } from 'lucide-react';
 
 
+import { maskCPF } from '../../utils/masks';
+
 const FamilyStep = () => {
     const { data, updateData } = useAssessment();
     const navigate = useNavigate();
@@ -47,7 +49,7 @@ const FamilyStep = () => {
 
     const handleCancelEdit = () => {
         setEditIndex(null);
-        setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0' });
+        setNewMember({ name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0', cpf: '' });
     };
 
     const removeMember = (index) => {
@@ -92,7 +94,7 @@ const FamilyStep = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <div>
                         <label className="form-label">CPF (Opcional)</label>
-                        <input className="form-control" placeholder="000.000.000-00" value={newMember.cpf} onChange={e => setNewMember({ ...newMember, cpf: e.target.value })} />
+                        <input className="form-control" placeholder="000.000.000-00" value={newMember.cpf} onChange={e => setNewMember({ ...newMember, cpf: maskCPF(e.target.value) })} />
                     </div>
                     <div>
                         <label className="form-label">Idade</label>
