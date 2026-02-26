@@ -224,7 +224,7 @@ export const generatePDF = async (data, result) => {
     checkPageBreak(30);
 
     y = pageHeight - 55;
-    sectionTitle('Declaração e Assinatura');
+    sectionTitle('5. Declarações Finais');
     doc.setFontSize(10);
     doc.text('[ ]  Atesto a veracidade das informações prestadas.', margin, y);
     y += 7;
