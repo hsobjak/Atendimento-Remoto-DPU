@@ -84,7 +84,7 @@ const ResultStep = () => {
             </div>
 
             <div style={{ marginTop: '40px', fontSize: '0.8rem', color: '#999', padding: '0 20px' }}>
-                AVISO: O resultado apresentado é orientativo e não substitui a análise do/a Defensor/a Público/a, que possui independência funcional.
+                AVISO: O resultado apresentado é orientativo e não substitui a análise do/a Defensor/a Público/a Federal, que possui independência funcional.
             </div>
         </div>
     );

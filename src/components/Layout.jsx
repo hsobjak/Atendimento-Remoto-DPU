@@ -34,7 +34,7 @@ const Layout = ({ children }) => {
             <footer style={{ background: 'var(--color-primary)', color: 'white', padding: '24px 0', marginTop: 'auto' }}>
                 <div className="container" style={{ textAlign: 'center', fontSize: '0.875rem' }}>
                     <p>© 2026 Defensoria Pública da União - Sistema de Geração de Formulário Socioeconômico</p>
-                    <p style={{ opacity: 0.8, fontSize: '0.75rem', marginTop: '8px' }}>Uso interno e orientativo. A decisão final é prerrogativa do Defensor Público.</p>
+                    <p style={{ opacity: 0.8, fontSize: '0.75rem', marginTop: '8px' }}>Uso interno e orientativo. A decisão final é prerrogativa do Defensor Público Federal.</p>
                 </div>
             </footer>
         </div>
