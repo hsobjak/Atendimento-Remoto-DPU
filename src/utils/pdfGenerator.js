@@ -152,7 +152,7 @@ export const generatePDF = async (data, result) => {
         doc.text('Nenhum membro informado.', margin, y);
         y += 5;
     } else {
-        const colX = [margin, margin + 40, margin + 75, margin + 95, margin + 120, margin + 155];
+        const colX = [margin, margin + 35, margin + 68, margin + 105, margin + 120, margin + 155];
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
         doc.setFillColor(240, 245, 240);
@@ -164,9 +164,9 @@ export const generatePDF = async (data, result) => {
             checkPageBreak(6);
             const isBpcBolsa = m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família';
             const rendaStr = isBpcBolsa ? m.benefitType : (parseFloat(m.incomeValue) > 0 ? `R$ ${parseFloat(m.incomeValue).toFixed(2)}` : 'R$ 0,00');
-            doc.text(String(m.name || '-').substring(0, 18), colX[0], y);
+            doc.text(String(m.name || '-').substring(0, 16), colX[0], y);
             doc.text(String(m.cpf || '-').substring(0, 14), colX[1], y);
-            doc.text(String(m.kinship || '-').substring(0, 12), colX[2], y);
+            doc.text(String(m.kinship || '-').substring(0, 16), colX[2], y);
             doc.text(String(m.age || '-'), colX[3], y);
             doc.text(String(isBpcBolsa ? 'Benefício' : (m.incomeSource || '-')).substring(0, 15), colX[4], y);
             if (isBpcBolsa) doc.setTextColor(120);
@@ -221,14 +221,15 @@ export const generatePDF = async (data, result) => {
 
     checkPageBreak(30);
 
-    y += 8; // Extra spacing before section
+    y = pageHeight - 55;
     sectionTitle('Declaração e Assinatura');
-    const decl = doc.splitTextToSize('Declaro a veracidade das informações e estou ciente das penalidades legais.', pageWidth - 2 * margin);
-
-    doc.setFontSize(8);
-    doc.text(decl, margin, y);
-    y += 10;
+    doc.setFontSize(10);
+    doc.text('[ ]  Atesto a veracidade das informações prestadas.', margin, y);
+    y += 7;
+    doc.text('[ ]  Declaro hipossuficiência econômica para fins de assistência.', margin, y);
+    y += 12;
     doc.line(margin, y, margin + 70, y);
+    doc.setFontSize(8);
     doc.text('Assinatura do Assistido(a)', margin, y + 4);
 
     // --- PÁGINA 2: INDEFERIMENTO ---
@@ -255,8 +256,10 @@ export const generatePDF = async (data, result) => {
         doc.text(s1, margin, y);
         y += s1.length * 5 + 4;
 
-        doc.text(`Na pesquisa socioeconômica realizada, ficou demonstrado que sua renda bruta familiar é superior ao limite estabelecido.`, margin, y);
-        y += 8;
+        const t3 = `Na pesquisa socioeconômica realizada, ficou demonstrado que sua renda bruta familiar é superior ao limite estabelecido.`;
+        const s3 = doc.splitTextToSize(t3, pageWidth - 2 * margin);
+        doc.text(s3, margin, y);
+        y += s3.length * 5 + 4;
 
         doc.setFont("helvetica", "bold");
         doc.text(`Renda bruta declarada:`, margin + 30, y);
@@ -273,20 +276,24 @@ export const generatePDF = async (data, result) => {
 
         const totS = (data.financial?.deductionItems || []).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
         doc.setFont("helvetica", "normal");
-        doc.text(`Gastos extraordinários com saúde decorrentes de moléstia ou acidente declarados:`, margin, y);
+        const t4 = `Gastos extraordinários com saúde decorrentes de moléstia ou acidente declarados:`;
+        const s4 = doc.splitTextToSize(t4, pageWidth - 2 * margin - 40);
+        doc.text(s4, margin, y);
         doc.setFillColor(230);
         doc.rect(pageWidth - margin - 35, y - 5, 35, 7, 'F');
         doc.setFont("helvetica", "bold");
         doc.text(`R$ ${totS.toFixed(2)}`, pageWidth - margin - 17.5, y, { align: 'center' });
-        y += 8;
+        y += s4.length * 5 + 3;
 
         doc.setFont("helvetica", "normal");
-        doc.text(`Gastos extraordinários diversos (indispensáveis, temporários e imprevistos) declarados:`, margin, y);
+        const t5 = `Gastos extraordinários diversos (indispensáveis, temporários e imprevistos) declarados:`;
+        const s5 = doc.splitTextToSize(t5, pageWidth - 2 * margin - 40);
+        doc.text(s5, margin, y);
         doc.setFillColor(230);
         doc.rect(pageWidth - margin - 35, y - 5, 35, 7, 'F');
         doc.setFont("helvetica", "bold");
         doc.text(`R$ 0.00`, pageWidth - margin - 17.5, y, { align: 'center' });
-        y += 12;
+        y += s5.length * 5 + 7;
 
         doc.setFillColor(235);
         doc.rect(margin, y, pageWidth - 2 * margin, 75, 'F');
@@ -314,7 +321,7 @@ export const generatePDF = async (data, result) => {
         const sc4 = doc.splitTextToSize(c4, pageWidth - 2 * margin - 10);
         doc.text(sc4, margin + 5, y);
 
-        y += 15;
+        y = pageHeight - 45;
         doc.setDrawColor(0);
         doc.line(margin, y, margin + 70, y);
         doc.line(pageWidth - margin - 70, y, pageWidth - margin, y);
