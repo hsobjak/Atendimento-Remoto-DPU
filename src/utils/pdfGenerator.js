@@ -214,6 +214,18 @@ export const generatePDF = async (data, result, mode = 'objective') => {
     doc.text(`Renda Familiar Bruta: ${formatCurrency(data.totalFamilyIncome)} `, margin, y + 2); y += 6;
     doc.text(`Renda Líquida Apurada: ${formatCurrency(netIncome)} `, margin, y + 1); y += 6;
 
+    // Additional Observations
+    if (data.demand?.observations) {
+        y += 4;
+        sectionTitle('Observações Adicionais');
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(10);
+        const splitText = doc.splitTextToSize(data.demand.observations, pageWidth - 2 * margin);
+        doc.text(splitText, margin, y);
+        y += (splitText.length * 5) + 2;
+        doc.setFont("helvetica", "normal");
+    }
+
     y += 8; // Extra spacing before section
     sectionTitle(isComplete ? '4. Gastos Declarados' : 'Gastos Declarados');
     const expLabels = { rent: 'Aluguel', water: 'Água', light: 'Luz', food: 'Alimentação', health: 'Saúde', transport: 'Transporte' };

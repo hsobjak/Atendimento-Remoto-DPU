@@ -411,6 +411,21 @@ const FinancialStep = () => {
                 </div>
             )}
 
+            {/* ── Observações Adicionais ── */}
+            <h3 style={{ fontSize: '1rem', color: '#444', marginTop: '28px', marginBottom: '12px' }}>Observações Adicionais</h3>
+            <div className="form-group">
+                <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '8px' }}>
+                    Utilize este espaço para registrar informações relevantes que queira acrescentar ao relatório (ex: ajuda de terceiros, vulnerabilidades específicas).
+                </p>
+                <textarea
+                    className="form-control"
+                    style={{ minHeight: '80px', resize: 'vertical' }}
+                    placeholder="Opcional..."
+                    value={data.demand?.observations || ''}
+                    onChange={e => updateDemand('observations', e.target.value)}
+                />
+            </div>
+
             {/* ── Contexto da Demanda ── */}
             <h3 style={{ fontSize: '1rem', color: '#444', marginTop: '28px', marginBottom: '16px' }}>4. Contexto da Demanda</h3>
 

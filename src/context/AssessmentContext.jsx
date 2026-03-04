@@ -61,6 +61,7 @@ export const AssessmentProvider = ({ children }) => {
             type: '',
             object: '',
             processNumber: '',
+            observations: '',
             declarations: {
                 truthfulness: false,
                 hyposufficiency: false
