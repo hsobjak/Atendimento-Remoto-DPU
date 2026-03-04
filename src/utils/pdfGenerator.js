@@ -282,11 +282,13 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
     checkPageBreak(40);
     y += 10;
-    sectionTitle('5. Declarações Finais');
+    sectionTitle(isComplete ? '5. Declarações Finais' : 'Declarações Finais');
     doc.setFontSize(10);
-    doc.text('[ ]  Atesto a veracidade das informações prestadas.', margin, y);
+    const truthSelected = data.demand?.declarations?.truthfulness ? 'X' : ' ';
+    const hypoSelected = data.demand?.declarations?.hyposufficiency ? 'X' : ' ';
+    doc.text(`[${truthSelected}]  Atesto a veracidade das informações prestadas.`, margin, y);
     y += 7;
-    doc.text('[ ]  Declaro hipossuficiência econômica para fins de assistência.', margin, y);
+    doc.text(`[${hypoSelected}]  Declaro hipossuficiência econômica para fins de assistência.`, margin, y);
     y += 12;
     y += 15;
     checkPageBreak(10);
