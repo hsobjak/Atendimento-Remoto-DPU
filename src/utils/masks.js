@@ -22,21 +22,39 @@ export const maskPhone = (value) => {
         .replace(/(-\d{4})\d+?$/, '$1');
 };
 export const maskCurrency = (value) => {
-    if (!value) return '';
+    if (value === undefined || value === null || value === "") return "";
 
-    // Remove tudo o que não é dígito
-    let v = value.toString().replace(/\D/g, '');
+    let v = value.toString();
 
-    // Converte para centavos e então formata
-    v = (Number(v) / 100).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    });
+    // Se for um número puro (vindo do estado), tratamos o ponto como decimal
+    if (typeof value === 'number') {
+        v = v.replace('.', ',');
+        // Se for número inteiro, adicionamos a vírgula para consistência se necessário? 
+        // Não, vamos deixar o usuário decidir o decimal no input.
+    }
 
-    return v;
+    // Remove tudo que não é dígito ou vírgula
+    v = v.replace(/[^\d,]/g, '');
+
+    // Garante apenas uma vírgula
+    const parts = v.split(',');
+    if (parts.length > 2) v = parts[0] + ',' + parts.slice(1).join('');
+
+    // Formata a parte inteira (milhares com ponto)
+    let intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    // Se houver parte decimal, limita a 2 dígitos
+    let decPart = parts.length > 1 ? ',' + parts[1].slice(0, 2) : '';
+
+    return 'R$ ' + intPart + decPart;
 };
 
 export const unmaskCurrency = (value) => {
     if (!value) return 0;
-    return Number(value.replace(/\D/g, '')) / 100;
+    // Remove R$, pontos de milhar e converte vírgula em ponto
+    const clean = value.toString()
+        .replace('R$ ', '')
+        .replace(/\./g, '')
+        .replace(',', '.');
+    return parseFloat(clean) || 0;
 };
