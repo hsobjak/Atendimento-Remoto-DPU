@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
-import { calculateNetIncome, formatCurrency } from './businessRules';
+import { formatCurrency, calculateNetIncome } from './businessRules';
+import { unmaskCurrency } from './masks';
 
 const getDataUri = (url) => {
     return new Promise((resolve) => {
@@ -103,7 +104,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
     doc.setFontSize(9);
     doc.setTextColor(120);
-    doc.text(`Emitido em: ${hoje}`, pageWidth - margin, y, { align: 'right' });
+    doc.text(`Emitido em: ${hoje} `, pageWidth - margin, y, { align: 'right' });
     doc.setTextColor(0);
     y += 4;
 
@@ -121,7 +122,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
     doc.setFont("helvetica", "normal");
     y += 6;
 
-    const splitJust = doc.splitTextToSize(`Justificativa: ${result.justification}`, pageWidth - 2 * margin);
+    const splitJust = doc.splitTextToSize(`Justificativa: ${result.justification} `, pageWidth - 2 * margin);
     doc.text(splitJust, margin, y);
     y += splitJust.length * 5 + 2;
 
@@ -161,7 +162,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
     const { street, number, neighborhood, zipCode, complement } = data.personal || {};
     const fullAddress = street
-        ? `${street}, Nº ${number || 'S/N'}, ${neighborhood || ''}${complement ? ` (${complement})` : ''} - CEP: ${zipCode || ''}`
+        ? `${street}, Nº ${number || 'S/N'}, ${neighborhood || ''}${complement ? ` (${complement})` : ''} - CEP: ${zipCode || ''} `
         : '-';
 
     row('Endereço', fullAddress);
@@ -209,39 +210,39 @@ export const generatePDF = async (data, result, mode = 'objective') => {
     const netIncome = calculateNetIncome(data);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.text(`Renda Familiar Bruta: ${formatCurrency(data.totalFamilyIncome)}`, margin, y + 2); y += 6;
-    doc.text(`Renda Líquida Apurada: ${formatCurrency(netIncome)}`, margin, y + 1); y += 6;
+    doc.text(`Renda Familiar Bruta: ${formatCurrency(data.totalFamilyIncome)} `, margin, y + 2); y += 6;
+    doc.text(`Renda Líquida Apurada: ${formatCurrency(netIncome)} `, margin, y + 1); y += 6;
 
     y += 8; // Extra spacing before section
     sectionTitle(isComplete ? '4. Gastos Declarados' : 'Gastos Declarados');
     const expLabels = { rent: 'Aluguel', water: 'Água', light: 'Luz', food: 'Alimentação', health: 'Saúde', transport: 'Transporte' };
 
     const exp = data.financial?.expenses || {};
-    const filledExp = Object.entries(expLabels).filter(([k]) => parseFloat(exp[k]) > 0);
-    const customExp = (data.financial?.customExpenses || []).filter(e => parseFloat(e.value) > 0);
-    const dedItems = data.financial?.deductionItems || [];
+    const filledExp = Object.entries(expLabels).filter(([k]) => unmaskCurrency(exp[k]) > 0);
+    const customExp = (data.financial?.customExpenses || []).filter(e => unmaskCurrency(e.value) > 0);
+    const deductions = data.financial?.deductionItems || [];
 
     if (filledExp.length === 0 && customExp.length === 0) {
         doc.setFont("helvetica", "italic");
         doc.text('Nenhum gasto comum informado.', margin, y);
         y += 5;
     } else {
-        filledExp.forEach(([k, label]) => row(label, formatCurrency(parseFloat(exp[k]))));
-        customExp.forEach(item => row(item.description, formatCurrency(parseFloat(item.value))));
+        filledExp.forEach(([k, label]) => row(label, formatCurrency(unmaskCurrency(exp[k]))));
+        customExp.forEach(item => row(item.description, formatCurrency(unmaskCurrency(item.value))));
     }
 
-    if (dedItems.length > 0) {
+    if (deductions.length > 0) {
         y += 8;
         sectionTitle('Gastos Extraordinários (Deduções)');
         doc.setTextColor(198, 40, 40); // Red
         doc.setFont("helvetica", "bold");
 
-        dedItems.forEach(item => {
+        deductions.forEach(item => {
             checkPageBreak(5);
             const labelText = `${item.description}: `;
             doc.text(labelText, margin, y);
             const labelWidth = doc.getTextWidth(labelText);
-            doc.text(formatCurrency(parseFloat(item.value)), margin + labelWidth + 2, y);
+            doc.text(formatCurrency(unmaskCurrency(item.value)), margin + labelWidth + 2, y);
             y += 4.5;
         });
 
@@ -272,7 +273,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
             doc.setFont("helvetica", "normal");
             investments.forEach(inv => {
                 checkPageBreak(5);
-                doc.text(`- ${inv.description}: ${formatCurrency(parseFloat(inv.value))}`, margin + 5, y);
+                doc.text(`- ${inv.description}: ${formatCurrency(unmaskCurrency(inv.value))} `, margin + 5, y);
                 y += 5;
             });
         } else {
@@ -315,7 +316,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.setFontSize(11);
         doc.setTextColor(0);
 
-        const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até 2 (dois) salários mínimos, atualmente R$ 3.036,00.`;
+        const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até 2(dois) salários mínimos, atualmente R$ 3.036,00.`;
         const s1 = doc.splitTextToSize(t1, pageWidth - 2 * margin);
         doc.text(s1, margin, y, { align: 'justify', maxWidth: pageWidth - 2 * margin });
         y += s1.length * 5 + 4;
@@ -326,21 +327,21 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         y += s3.length * 5 + 4;
 
         doc.setFont("helvetica", "bold");
-        doc.text(`Renda bruta declarada:`, margin + 30, y);
+        doc.text(`Renda bruta declarada: `, margin + 30, y);
         doc.setFillColor(230);
         doc.rect(margin + 75, y - 5, 40, 7, 'F');
         doc.text(formatCurrency(data.totalFamilyIncome), margin + 95, y, { align: 'center' });
         y += 12;
 
         doc.setFont("helvetica", "bold");
-        const t2_bold = `As despesas ordinárias e comuns (água, luz, telefone, alimentação, moradia, etc) e aquelas que evidenciam gastos não compatíveis com a condição de pobreza (plano de saúde, tv por assinatura, escolas privadas etc) não são dedutíveis para fins de atendimento. Somente gastos extraordinários com saúde decorrentes de moléstia ou acidente e os gastos extraordinários considerados indispensáveis, temporários e imprevistos poderão ser deduzidos da renda bruta familiar (Resolução nº 240/2025 do CSDPU).`;
+        const t2_bold = `As despesas ordinárias e comuns(água, luz, telefone, alimentação, moradia, etc) e aquelas que evidenciam gastos não compatíveis com a condição de pobreza(plano de saúde, tv por assinatura, escolas privadas etc) não são dedutíveis para fins de atendimento.Somente gastos extraordinários com saúde decorrentes de moléstia ou acidente e os gastos extraordinários considerados indispensáveis, temporários e imprevistos poderão ser deduzidos da renda bruta familiar(Resolução nº 240 / 2025 do CSDPU).`;
         const s2 = doc.splitTextToSize(t2_bold, pageWidth - 2 * margin);
         doc.text(s2, margin, y, { align: 'justify', maxWidth: pageWidth - 2 * margin });
         y += s2.length * 5 + 6;
 
         const totS = (data.financial?.deductionItems || []).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
         doc.setFont("helvetica", "normal");
-        const t4 = `Gastos extraordinários com saúde decorrentes de moléstia ou acidente declarados:`;
+        const t4 = `Gastos extraordinários com saúde decorrentes de moléstia ou acidente declarados: `;
         const s4 = doc.splitTextToSize(t4, pageWidth - 2 * margin - 40);
         doc.text(s4, margin, y);
         doc.setFillColor(230);
@@ -350,7 +351,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         y += s4.length * 5 + 3;
 
         doc.setFont("helvetica", "normal");
-        const t5 = `Gastos extraordinários diversos (indispensáveis, temporários e imprevistos) declarados:`;
+        const t5 = `Gastos extraordinários diversos(indispensáveis, temporários e imprevistos) declarados: `;
         const s5 = doc.splitTextToSize(t5, pageWidth - 2 * margin - 40);
         doc.text(s5, margin, y);
         doc.setFillColor(230);
@@ -365,7 +366,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9.5);
-        const c1 = `Considerando que a renda familiar bruta declarada ultrapassa o parâmetro definido na Resolução nº 240/2025, do CSDPU, fica o requerente intimado do INDEFERIMENTO do requerimento de assistência jurídica gratuita e, consequentemente, do arquivamento do Procedimento de Assistência Jurídica - PAJ.`;
+        const c1 = `Considerando que a renda familiar bruta declarada ultrapassa o parâmetro definido na Resolução nº 240 / 2025, do CSDPU, fica o requerente intimado do INDEFERIMENTO do requerimento de assistência jurídica gratuita e, consequentemente, do arquivamento do Procedimento de Assistência Jurídica - PAJ.`;
         const sc1 = doc.splitTextToSize(c1, pageWidth - 2 * margin - 10);
         doc.text(sc1, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
         y += sc1.length * 5 + 3;
@@ -397,7 +398,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.setFontSize(7.5);
         doc.setTextColor(150);
         doc.text('Defensoria Pública da União', margin, pageHeight - 8);
-        doc.text(`Emitido em: ${hoje}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        doc.text(`Emitido em: ${hoje} `, pageWidth - margin, pageHeight - 8, { align: 'right' });
     }
 
     doc.save('relatorio_dpu.pdf');

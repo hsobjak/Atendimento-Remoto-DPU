@@ -1,4 +1,5 @@
 import { createContext, useState, useContext } from 'react';
+import { unmaskCurrency } from '../utils/masks';
 
 const AssessmentContext = createContext();
 
@@ -84,8 +85,8 @@ export const AssessmentProvider = ({ children }) => {
             // BPC is excluded from the calculation per portaria
             if (section === 'family') {
                 const total = (newData.family.members || []).reduce((acc, curr) => {
-                    if (curr.benefitType === 'BPC' || curr.benefitType === 'Bolsa Família') return acc; // Desconsiderar conforme portaria
-                    return acc + (parseFloat(curr.incomeValue) || 0);
+                    if (curr.benefitType === 'BPC' || curr.benefitType === 'Bolsa Família') return acc;
+                    return acc + unmaskCurrency(curr.incomeValue);
                 }, 0);
                 newData.totalFamilyIncome = total;
             }

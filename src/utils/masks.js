@@ -26,35 +26,39 @@ export const maskCurrency = (value) => {
 
     let v = value.toString();
 
-    // Se for um número puro (vindo do estado), tratamos o ponto como decimal
+    // Se for um número (quando carregando dados salvos ou resultados de cálculo)
     if (typeof value === 'number') {
-        v = v.replace('.', ',');
-        // Se for número inteiro, adicionamos a vírgula para consistência se necessário? 
-        // Não, vamos deixar o usuário decidir o decimal no input.
+        v = v.toFixed(2).replace('.', ',');
     }
 
-    // Remove tudo que não é dígito ou vírgula
-    v = v.replace(/[^\d,]/g, '');
+    // Remove R$ e limpa o que não é dígito ou vírgula
+    v = v.replace('R$ ', '').replace(/[^\d,]/g, '');
 
     // Garante apenas uma vírgula
     const parts = v.split(',');
-    if (parts.length > 2) v = parts[0] + ',' + parts.slice(1).join('');
+    if (parts.length > 2) {
+        v = parts[0] + ',' + parts.slice(1).join('');
+    }
 
     // Formata a parte inteira (milhares com ponto)
-    let intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const [int, dec] = v.split(',');
+    let maskedInt = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-    // Se houver parte decimal, limita a 2 dígitos
-    let decPart = parts.length > 1 ? ',' + parts[1].slice(0, 2) : '';
+    if (v.includes(',')) {
+        return 'R$ ' + maskedInt + ',' + (dec || '').slice(0, 2);
+    }
 
-    return 'R$ ' + intPart + decPart;
+    return maskedInt ? 'R$ ' + maskedInt : '';
 };
 
 export const unmaskCurrency = (value) => {
-    if (!value) return 0;
-    // Remove R$, pontos de milhar e converte vírgula em ponto
-    const clean = value.toString()
+    if (value === undefined || value === null || value === "") return 0;
+
+    let v = value.toString()
         .replace('R$ ', '')
         .replace(/\./g, '')
         .replace(',', '.');
-    return parseFloat(clean) || 0;
+
+    const num = parseFloat(v);
+    return isNaN(num) ? 0 : num;
 };

@@ -1,4 +1,5 @@
 import { SALARIO_MINIMO, LIMITES, TIPOS_DEMANDA } from './constants';
+import { unmaskCurrency } from './masks';
 
 export const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -9,11 +10,12 @@ export const formatCurrency = (value) => {
 
 export const calculateNetIncome = (data) => {
     // Gross Income comes from Family Members sum (BPC and Bolsa Família already excluded)
+    // data.totalFamilyIncome is already a number (calculated in AssessmentContext)
     const gross = data.totalFamilyIncome || 0;
 
     // Sum all deduction items (described individually for the report)
     const deductions = (data.financial?.deductionItems || []).reduce(
-        (acc, item) => acc + (parseFloat(item.value) || 0), 0
+        (acc, item) => acc + unmaskCurrency(item.value), 0
     );
 
     return Math.max(0, gross - deductions);

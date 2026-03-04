@@ -26,7 +26,7 @@ const FamilyStep = () => {
         }
         const member = {
             ...newMember,
-            incomeValue: unmaskCurrency(newMember.incomeValue)
+            incomeValue: newMember.incomeValue
         };
 
         let updatedMembers;

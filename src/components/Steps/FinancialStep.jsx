@@ -39,7 +39,7 @@ const FinancialStep = () => {
 
     const updateExpense = (field, value) => {
         updateData('financial', {
-            expenses: { ...data.financial.expenses, [field]: unmaskCurrency(value) }
+            expenses: { ...data.financial.expenses, [field]: value }
         });
     };
 
@@ -57,7 +57,7 @@ const FinancialStep = () => {
         }
         const updated = [...(data.financial.customExpenses || []), {
             description: newExpense.description,
-            value: unmaskCurrency(newExpense.value)
+            value: newExpense.value
         }];
         updateData('financial', { customExpenses: updated });
         setNewExpense({ description: '', value: '' });
@@ -76,7 +76,7 @@ const FinancialStep = () => {
         }
         const updated = [...(data.financial.deductionItems || []), {
             description: newDeduction.description,
-            value: unmaskCurrency(newDeduction.value)
+            value: newDeduction.value
         }];
         updateData('financial', { deductionItems: updated });
         setNewDeduction({ description: '', value: '' });
@@ -88,7 +88,7 @@ const FinancialStep = () => {
     };
 
     const totalDeductions = (data.financial.deductionItems || []).reduce(
-        (acc, d) => acc + (parseFloat(d.value) || 0), 0
+        (acc, d) => acc + unmaskCurrency(d.value), 0
     );
 
     return (
@@ -398,7 +398,7 @@ const FinancialStep = () => {
                                     }
                                     const updated = [...(data.financial.investments || []), {
                                         description: newInvestment.description,
-                                        value: unmaskCurrency(newInvestment.value)
+                                        value: newInvestment.value
                                     }];
                                     updateData('financial', { investments: updated });
                                     setNewInvestment({ description: '', value: '' });
