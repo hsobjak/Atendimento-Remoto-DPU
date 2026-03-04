@@ -194,7 +194,8 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         members.forEach((m) => {
             checkPageBreak(6);
             const isBpcBolsa = m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família';
-            const rendaStr = isBpcBolsa ? m.benefitType : (parseFloat(m.incomeValue) > 0 ? formatCurrency(parseFloat(m.incomeValue)) : 'R$ 0,00');
+            const val = unmaskCurrency(m.incomeValue);
+            const rendaStr = isBpcBolsa ? m.benefitType : (val > 0 ? formatCurrency(val) : 'R$ 0,00');
             doc.text(String(m.name || '-').substring(0, 16), colX[0], y);
             doc.text(String(m.cpf || '-').substring(0, 14), colX[1], y);
             doc.text(String(m.kinship || '-').substring(0, 16), colX[2], y);
