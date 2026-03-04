@@ -116,7 +116,7 @@ const FinancialStep = () => {
                             type="text"
                             className="form-control"
                             placeholder="R$ 0,00"
-                            value={maskCurrency(data.financial.expenses?.[item.key])}
+                            value={maskCurrency(data.financial?.expenses?.[item.key] || '0')}
                             onChange={(e) => updateExpense(item.key, maskCurrency(e.target.value))}
                         />
                     </div>

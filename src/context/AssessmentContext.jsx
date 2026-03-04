@@ -39,20 +39,20 @@ export const AssessmentProvider = ({ children }) => {
         // Step 3: Análise Financeira
         financial: {
             expenses: {
-                rent: 0,
-                water: 0,
-                light: 0,
-                food: 0,
-                health: 0,
-                transport: 0
+                rent: '0',
+                water: '0',
+                light: '0',
+                food: '0',
+                health: '0',
+                transport: '0'
             },
-            customExpenses: [], // { description, value } - despesas extras adicionadas manualmente
-            deductionItems: [], // { description, value } - deduções em tópicos para o relatório
-            hasInvestments: '', // 'sim' | 'nao'
-            investments: [], // { description, value } - investimentos financeiros declarados
+            customExpenses: [],
+            deductionItems: [],
+            hasInvestments: 'nao',
+            investments: [],
             assets: {
-                realEstate: '', // 'nao', 'sim_moradia', 'sim_extra'
-                vehicle: '' // 'nao', 'sim_trabalho', 'sim_luxo'
+                realEstate: '',
+                vehicle: ''
             }
         },
 
