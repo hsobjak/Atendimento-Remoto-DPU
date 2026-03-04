@@ -34,21 +34,26 @@ export const maskCurrency = (value) => {
     // Remove R$ e limpa o que não é dígito ou vírgula
     v = v.replace('R$ ', '').replace(/[^\d,]/g, '');
 
+    // Se o usuário apagou tudo, retorna vazio para não travar no "0"
+    if (v === "") return "";
+
     // Garante apenas uma vírgula
     const parts = v.split(',');
-    if (parts.length > 2) {
-        v = parts[0] + ',' + parts.slice(1).join('');
-    }
+    let intPart = parts[0];
+    let decPart = parts.length > 1 ? parts[1].slice(0, 2) : null;
+
+    // Remove zeros à esquerda da parte inteira, mas mantém um "0" se estiver vazio ou se for "0,"
+    intPart = intPart.replace(/^0+(?!$)/, '');
+    if (intPart === "" && decPart !== null) intPart = "0";
 
     // Formata a parte inteira (milhares com ponto)
-    const [int, dec] = v.split(',');
-    let maskedInt = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    let maskedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-    if (v.includes(',')) {
-        return 'R$ ' + maskedInt + ',' + (dec || '').slice(0, 2);
+    if (decPart !== null) {
+        return 'R$ ' + (maskedInt || "0") + ',' + decPart;
     }
 
-    return maskedInt ? 'R$ ' + maskedInt : '';
+    return maskedInt ? 'R$ ' + maskedInt : "";
 };
 
 export const unmaskCurrency = (value) => {
