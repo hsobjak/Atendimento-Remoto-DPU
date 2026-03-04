@@ -21,3 +21,22 @@ export const maskPhone = (value) => {
         .replace(/(\d{5})(\d)/, '$1-$2')
         .replace(/(-\d{4})\d+?$/, '$1');
 };
+export const maskCurrency = (value) => {
+    if (!value) return '';
+
+    // Remove tudo o que não é dígito
+    let v = value.toString().replace(/\D/g, '');
+
+    // Converte para centavos e então formata
+    v = (Number(v) / 100).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
+
+    return v;
+};
+
+export const unmaskCurrency = (value) => {
+    if (!value) return 0;
+    return Number(value.replace(/\D/g, '')) / 100;
+};

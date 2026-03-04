@@ -5,7 +5,7 @@ import { PARENTESCO } from '../../utils/constants';
 import { Plus, Trash2, Pencil, X } from 'lucide-react';
 
 
-import { maskCPF } from '../../utils/masks';
+import { maskCPF, maskCurrency, unmaskCurrency } from '../../utils/masks';
 
 import { formatCurrency } from '../../utils/businessRules';
 
@@ -26,7 +26,7 @@ const FamilyStep = () => {
         }
         const member = {
             ...newMember,
-            incomeValue: parseFloat(newMember.incomeValue) || 0
+            incomeValue: unmaskCurrency(newMember.incomeValue)
         };
 
         let updatedMembers;
@@ -46,7 +46,11 @@ const FamilyStep = () => {
 
     const handleEditMember = (index) => {
         setEditIndex(index);
-        setNewMember({ ...data.family.members[index] });
+        const member = data.family.members[index];
+        setNewMember({
+            ...member,
+            incomeValue: maskCurrency(member.incomeValue)
+        });
     };
 
     const handleCancelEdit = () => {
@@ -149,7 +153,13 @@ const FamilyStep = () => {
 
             <div style={{ marginBottom: '16px' }}>
                 <label className="form-label">Valor (R$)</label>
-                <input type="number" className="form-control" value={newMember.incomeValue} onChange={e => setNewMember({ ...newMember, incomeValue: e.target.value })} />
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="R$ 0,00"
+                    value={newMember.incomeValue}
+                    onChange={e => setNewMember({ ...newMember, incomeValue: maskCurrency(e.target.value) })}
+                />
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>

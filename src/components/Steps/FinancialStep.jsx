@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessment } from '../../context/AssessmentContext';
 import { Plus, Trash2 } from 'lucide-react';
+import { maskCurrency, unmaskCurrency } from '../../utils/masks';
 import { formatCurrency } from '../../utils/businessRules';
 
 const FinancialStep = () => {
@@ -38,7 +39,7 @@ const FinancialStep = () => {
 
     const updateExpense = (field, value) => {
         updateData('financial', {
-            expenses: { ...data.financial.expenses, [field]: parseFloat(value) || 0 }
+            expenses: { ...data.financial.expenses, [field]: unmaskCurrency(value) }
         });
     };
 
@@ -56,7 +57,7 @@ const FinancialStep = () => {
         }
         const updated = [...(data.financial.customExpenses || []), {
             description: newExpense.description,
-            value: parseFloat(newExpense.value) || 0
+            value: unmaskCurrency(newExpense.value)
         }];
         updateData('financial', { customExpenses: updated });
         setNewExpense({ description: '', value: '' });
@@ -75,7 +76,7 @@ const FinancialStep = () => {
         }
         const updated = [...(data.financial.deductionItems || []), {
             description: newDeduction.description,
-            value: parseFloat(newDeduction.value) || 0
+            value: unmaskCurrency(newDeduction.value)
         }];
         updateData('financial', { deductionItems: updated });
         setNewDeduction({ description: '', value: '' });
@@ -112,11 +113,11 @@ const FinancialStep = () => {
                     <div key={item.key} style={{ display: 'grid', gridTemplateColumns: '140px 1fr', alignItems: 'center', gap: '12px' }}>
                         <label className="form-label" style={{ fontSize: '0.9rem', marginBottom: 0 }}>{item.label}</label>
                         <input
-                            type="number"
+                            type="text"
                             className="form-control"
-                            placeholder="0,00"
-                            value={data.financial.expenses?.[item.key] || ''}
-                            onChange={(e) => updateExpense(item.key, e.target.value)}
+                            placeholder="R$ 0,00"
+                            value={maskCurrency(data.financial.expenses?.[item.key])}
+                            onChange={(e) => updateExpense(item.key, maskCurrency(e.target.value))}
                         />
                     </div>
                 ))}
@@ -164,11 +165,11 @@ const FinancialStep = () => {
                     <div>
                         <label className="form-label" style={{ fontSize: '0.85rem' }}>Valor (R$)</label>
                         <input
-                            type="number"
+                            type="text"
                             className="form-control"
-                            placeholder="0,00"
+                            placeholder="R$ 0,00"
                             value={newExpense.value}
-                            onChange={e => setNewExpense({ ...newExpense, value: e.target.value })}
+                            onChange={e => setNewExpense({ ...newExpense, value: maskCurrency(e.target.value) })}
                         />
                     </div>
                     <button
@@ -249,11 +250,11 @@ const FinancialStep = () => {
                     <div>
                         <label className="form-label" style={{ fontSize: '0.85rem' }}>Valor (R$)</label>
                         <input
-                            type="number"
+                            type="text"
                             className="form-control"
-                            placeholder="0,00"
+                            placeholder="R$ 0,00"
                             value={newDeduction.value}
-                            onChange={e => setNewDeduction({ ...newDeduction, value: e.target.value })}
+                            onChange={e => setNewDeduction({ ...newDeduction, value: maskCurrency(e.target.value) })}
                         />
                     </div>
                     <button
@@ -380,11 +381,11 @@ const FinancialStep = () => {
                             <div>
                                 <label className="form-label" style={{ fontSize: '0.85rem' }}>Valor aprox. (R$)</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     className="form-control"
-                                    placeholder="0,00"
+                                    placeholder="R$ 0,00"
                                     value={newInvestment.value}
-                                    onChange={e => setNewInvestment({ ...newInvestment, value: e.target.value })}
+                                    onChange={e => setNewInvestment({ ...newInvestment, value: maskCurrency(e.target.value) })}
                                 />
                             </div>
                             <button
@@ -397,7 +398,7 @@ const FinancialStep = () => {
                                     }
                                     const updated = [...(data.financial.investments || []), {
                                         description: newInvestment.description,
-                                        value: parseFloat(newInvestment.value) || 0
+                                        value: unmaskCurrency(newInvestment.value)
                                     }];
                                     updateData('financial', { investments: updated });
                                     setNewInvestment({ description: '', value: '' });
