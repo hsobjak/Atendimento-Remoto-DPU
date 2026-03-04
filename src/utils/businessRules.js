@@ -1,5 +1,12 @@
 import { SALARIO_MINIMO, LIMITES, TIPOS_DEMANDA } from './constants';
 
+export const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    }).format(value || 0);
+};
+
 export const calculateNetIncome = (data) => {
     // Gross Income comes from Family Members sum (BPC and Bolsa Família already excluded)
     const gross = data.totalFamilyIncome || 0;
@@ -63,7 +70,7 @@ export const checkEligibility = (data) => {
         return {
             status: 'ELIGIBLE_AUTOMATIC',
             message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
-            justification: `Renda familiar (R$ ${netIncome.toFixed(2)}) ou per capita (R$ ${perCapita.toFixed(2)}) dentro dos limites.`,
+            justification: `Renda familiar (${formatCurrency(netIncome)}) ou per capita (${formatCurrency(perCapita)}) dentro dos limites.`,
             appliedArticles,
             alerts
         };
@@ -72,7 +79,7 @@ export const checkEligibility = (data) => {
     return {
         status: 'NOT_ELIGIBLE',
         message: 'Não se enquadra nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
-        justification: `Renda superior aos limites objetivos (Total: R$ ${netIncome.toFixed(2)} > R$ ${limitTotal.toFixed(2)}).`,
+        justification: `Renda superior aos limites objetivos (Total: ${formatCurrency(netIncome)} > ${formatCurrency(limitTotal)}).`,
         appliedArticles,
         alerts: ['Foram declarados gastos extraordinários que devem ser avaliados pelo/a Defensor/a.']
 

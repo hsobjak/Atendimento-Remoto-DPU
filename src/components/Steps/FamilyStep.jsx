@@ -7,6 +7,8 @@ import { Plus, Trash2, Pencil, X } from 'lucide-react';
 
 import { maskCPF } from '../../utils/masks';
 
+import { formatCurrency } from '../../utils/businessRules';
+
 const FamilyStep = () => {
     const { data, updateData } = useAssessment();
     const navigate = useNavigate();
@@ -185,7 +187,7 @@ const FamilyStep = () => {
                                     <td style={{ padding: '8px' }}>
                                         {(m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família')
                                             ? <span style={{ color: '#888', fontStyle: 'italic' }}>{m.benefitType} (desconsiderado)</span>
-                                            : `R$ ${m.incomeValue.toFixed(2)}`
+                                            : formatCurrency(m.incomeValue)
                                         }
                                     </td>
                                     <td style={{ padding: '8px', textAlign: 'right' }}>
@@ -205,7 +207,7 @@ const FamilyStep = () => {
                 <div className="form-group">
                     <label className="form-label">Renda Familiar Bruta (Soma Automática)</label>
                     <div style={{ background: '#e9ecef', padding: '12px', borderRadius: '4px', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                        R$ {data.totalFamilyIncome?.toFixed(2) || '0.00'}
+                        {formatCurrency(data.totalFamilyIncome)}
                     </div>
                 </div>
             </div>

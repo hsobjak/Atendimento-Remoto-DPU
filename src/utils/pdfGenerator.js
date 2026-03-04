@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { calculateNetIncome } from './businessRules';
+import { calculateNetIncome, formatCurrency } from './businessRules';
 
 const getDataUri = (url) => {
     return new Promise((resolve) => {
@@ -193,7 +193,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         members.forEach((m) => {
             checkPageBreak(6);
             const isBpcBolsa = m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família';
-            const rendaStr = isBpcBolsa ? m.benefitType : (parseFloat(m.incomeValue) > 0 ? `R$ ${parseFloat(m.incomeValue).toFixed(2)}` : 'R$ 0,00');
+            const rendaStr = isBpcBolsa ? m.benefitType : (parseFloat(m.incomeValue) > 0 ? formatCurrency(parseFloat(m.incomeValue)) : 'R$ 0,00');
             doc.text(String(m.name || '-').substring(0, 16), colX[0], y);
             doc.text(String(m.cpf || '-').substring(0, 14), colX[1], y);
             doc.text(String(m.kinship || '-').substring(0, 16), colX[2], y);
@@ -209,8 +209,8 @@ export const generatePDF = async (data, result, mode = 'objective') => {
     const netIncome = calculateNetIncome(data);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.text(`Renda Familiar Bruta: R$ ${(data.totalFamilyIncome || 0).toFixed(2)}`, margin, y + 2); y += 6;
-    doc.text(`Renda Líquida Apurada: R$ ${netIncome.toFixed(2)}`, margin, y + 1); y += 6;
+    doc.text(`Renda Familiar Bruta: ${formatCurrency(data.totalFamilyIncome)}`, margin, y + 2); y += 6;
+    doc.text(`Renda Líquida Apurada: ${formatCurrency(netIncome)}`, margin, y + 1); y += 6;
 
     y += 8; // Extra spacing before section
     sectionTitle(isComplete ? '4. Gastos Declarados' : 'Gastos Declarados');
@@ -226,8 +226,8 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.text('Nenhum gasto comum informado.', margin, y);
         y += 5;
     } else {
-        filledExp.forEach(([k, label]) => row(label, `R$ ${parseFloat(exp[k]).toFixed(2)}`));
-        customExp.forEach(item => row(item.description, `R$ ${parseFloat(item.value).toFixed(2)}`));
+        filledExp.forEach(([k, label]) => row(label, formatCurrency(parseFloat(exp[k]))));
+        customExp.forEach(item => row(item.description, formatCurrency(parseFloat(item.value))));
     }
 
     if (dedItems.length > 0) {
@@ -241,7 +241,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
             const labelText = `${item.description}: `;
             doc.text(labelText, margin, y);
             const labelWidth = doc.getTextWidth(labelText);
-            doc.text(`R$ ${parseFloat(item.value).toFixed(2)}`, margin + labelWidth + 2, y);
+            doc.text(formatCurrency(parseFloat(item.value)), margin + labelWidth + 2, y);
             y += 4.5;
         });
 
@@ -272,7 +272,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
             doc.setFont("helvetica", "normal");
             investments.forEach(inv => {
                 checkPageBreak(5);
-                doc.text(`- ${inv.description}: R$ ${parseFloat(inv.value).toFixed(2)}`, margin + 5, y);
+                doc.text(`- ${inv.description}: ${formatCurrency(parseFloat(inv.value))}`, margin + 5, y);
                 y += 5;
             });
         } else {
@@ -315,25 +315,25 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
         const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até 2 (dois) salários mínimos, atualmente R$ 3.036,00.`;
         const s1 = doc.splitTextToSize(t1, pageWidth - 2 * margin);
-        doc.text(s1, margin, y);
+        doc.text(s1, margin, y, { align: 'justify', maxWidth: pageWidth - 2 * margin });
         y += s1.length * 5 + 4;
 
         const t3 = `Na pesquisa socioeconômica realizada, ficou demonstrado que sua renda bruta familiar é superior ao limite estabelecido.`;
         const s3 = doc.splitTextToSize(t3, pageWidth - 2 * margin);
-        doc.text(s3, margin, y);
+        doc.text(s3, margin, y, { align: 'justify', maxWidth: pageWidth - 2 * margin });
         y += s3.length * 5 + 4;
 
         doc.setFont("helvetica", "bold");
         doc.text(`Renda bruta declarada:`, margin + 30, y);
         doc.setFillColor(230);
         doc.rect(margin + 75, y - 5, 40, 7, 'F');
-        doc.text(`R$ ${(data.totalFamilyIncome || 0).toFixed(2)}`, margin + 95, y, { align: 'center' });
+        doc.text(formatCurrency(data.totalFamilyIncome), margin + 95, y, { align: 'center' });
         y += 12;
 
         doc.setFont("helvetica", "bold");
         const t2_bold = `As despesas ordinárias e comuns (água, luz, telefone, alimentação, moradia, etc) e aquelas que evidenciam gastos não compatíveis com a condição de pobreza (plano de saúde, tv por assinatura, escolas privadas etc) não são dedutíveis para fins de atendimento. Somente gastos extraordinários com saúde decorrentes de moléstia ou acidente e os gastos extraordinários considerados indispensáveis, temporários e imprevistos poderão ser deduzidos da renda bruta familiar (Resolução nº 240/2025 do CSDPU).`;
         const s2 = doc.splitTextToSize(t2_bold, pageWidth - 2 * margin);
-        doc.text(s2, margin, y);
+        doc.text(s2, margin, y, { align: 'justify', maxWidth: pageWidth - 2 * margin });
         y += s2.length * 5 + 6;
 
         const totS = (data.financial?.deductionItems || []).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
@@ -344,7 +344,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.setFillColor(230);
         doc.rect(pageWidth - margin - 35, y - 5, 35, 7, 'F');
         doc.setFont("helvetica", "bold");
-        doc.text(`R$ ${totS.toFixed(2)}`, pageWidth - margin - 17.5, y, { align: 'center' });
+        doc.text(formatCurrency(totS), pageWidth - margin - 17.5, y, { align: 'center' });
         y += s4.length * 5 + 3;
 
         doc.setFont("helvetica", "normal");
@@ -354,7 +354,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.setFillColor(230);
         doc.rect(pageWidth - margin - 35, y - 5, 35, 7, 'F');
         doc.setFont("helvetica", "bold");
-        doc.text(`R$ 0.00`, pageWidth - margin - 17.5, y, { align: 'center' });
+        doc.text(formatCurrency(0), pageWidth - margin - 17.5, y, { align: 'center' });
         y += s5.length * 5 + 7;
 
         doc.setFillColor(235);
@@ -365,23 +365,23 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.setFontSize(9.5);
         const c1 = `Considerando que a renda familiar bruta declarada ultrapassa o parâmetro definido na Resolução nº 240/2025, do CSDPU, fica o requerente intimado do INDEFERIMENTO do requerimento de assistência jurídica gratuita e, consequentemente, do arquivamento do Procedimento de Assistência Jurídica - PAJ.`;
         const sc1 = doc.splitTextToSize(c1, pageWidth - 2 * margin - 10);
-        doc.text(sc1, margin + 5, y);
+        doc.text(sc1, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
         y += sc1.length * 5 + 3;
 
         const c2 = `O requerente fica ciente de que, em razão do indeferimento da assistência jurídica gratuita, não haverá prática de qualquer ato, administrativo ou judicial, em seu favor, e que eventuais prazos judiciais existentes continuam em curso, normalmente.`;
         const sc2 = doc.splitTextToSize(c2, pageWidth - 2 * margin - 10);
-        doc.text(sc2, margin + 5, y);
+        doc.text(sc2, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
         y += sc2.length * 5 + 3;
 
         doc.setFont("helvetica", "normal");
         const c3 = `Caso não concorde com o indeferimento, o requerente poderá, no prazo de 30 dias, apresentar documentação complementar que prove sua condição de pobreza, juntamente com os comprovantes de renda de todos os integrantes da família e com comprovantes dos gastos extraordinários dedutíveis, se houver.`;
         const sc3 = doc.splitTextToSize(c3, pageWidth - 2 * margin - 10);
-        doc.text(sc3, margin + 5, y);
+        doc.text(sc3, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
         y += sc3.length * 5 + 3;
 
         const c4 = `Apresentada a documentação, será reanalisado o requerimento pelo Defensor Público responsável, que poderá manter o arquivamento ou deferir a assistência jurídica solicitada, caso considere provada a condição de pobreza.`;
         const sc4 = doc.splitTextToSize(c4, pageWidth - 2 * margin - 10);
-        doc.text(sc4, margin + 5, y);
+        doc.text(sc4, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
 
         y = pageHeight - 45;
         doc.setDrawColor(0);

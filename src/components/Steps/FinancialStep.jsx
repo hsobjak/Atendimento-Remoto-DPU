@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessment } from '../../context/AssessmentContext';
 import { Plus, Trash2 } from 'lucide-react';
+import { formatCurrency } from '../../utils/businessRules';
 
 const FinancialStep = () => {
     const { data, updateData } = useAssessment();
@@ -127,7 +128,7 @@ const FinancialStep = () => {
                             {exp.description}
                         </label>
                         <div style={{ background: '#f0f0f0', padding: '8px 12px', borderRadius: '4px', fontSize: '0.9rem' }}>
-                            R$ {exp.value.toFixed(2)}
+                            {formatCurrency(exp.value)}
                         </div>
                         <button
                             onClick={() => removeCustomExpense(idx)}
@@ -203,7 +204,7 @@ const FinancialStep = () => {
                             {(data.financial.deductionItems || []).map((ded, idx) => (
                                 <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                                     <td style={{ padding: '8px 12px' }}>{ded.description}</td>
-                                    <td style={{ padding: '8px 12px' }}>R$ {ded.value.toFixed(2)}</td>
+                                    <td style={{ padding: '8px 12px' }}>{formatCurrency(ded.value)}</td>
                                     <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                                         <button
                                             onClick={() => removeDeduction(idx)}
@@ -218,7 +219,7 @@ const FinancialStep = () => {
                         <tfoot>
                             <tr style={{ background: '#f5f5f5', fontWeight: 'bold' }}>
                                 <td style={{ padding: '8px 12px' }}>Total de Deduções</td>
-                                <td style={{ padding: '8px 12px' }} colSpan={2}>R$ {totalDeductions.toFixed(2)}</td>
+                                <td style={{ padding: '8px 12px' }} colSpan={2}>{formatCurrency(totalDeductions)}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -344,7 +345,7 @@ const FinancialStep = () => {
                                     {(data.financial.investments || []).map((inv, idx) => (
                                         <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '8px 12px' }}>{inv.description}</td>
-                                            <td style={{ padding: '8px 12px' }}>R$ {parseFloat(inv.value).toFixed(2)}</td>
+                                            <td style={{ padding: '8px 12px' }}>{formatCurrency(parseFloat(inv.value))}</td>
                                             <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                                                 <button
                                                     onClick={() => {
