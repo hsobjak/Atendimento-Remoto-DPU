@@ -129,7 +129,7 @@ const FinancialStep = () => {
                             {exp.description}
                         </label>
                         <div style={{ background: '#f0f0f0', padding: '8px 12px', borderRadius: '4px', fontSize: '0.9rem' }}>
-                            {formatCurrency(exp.value)}
+                            {formatCurrency(unmaskCurrency(exp.value))}
                         </div>
                         <button
                             onClick={() => removeCustomExpense(idx)}
@@ -205,7 +205,7 @@ const FinancialStep = () => {
                             {(data.financial.deductionItems || []).map((ded, idx) => (
                                 <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                                     <td style={{ padding: '8px 12px' }}>{ded.description}</td>
-                                    <td style={{ padding: '8px 12px' }}>{formatCurrency(ded.value)}</td>
+                                    <td style={{ padding: '8px 12px' }}>{formatCurrency(unmaskCurrency(ded.value))}</td>
                                     <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                                         <button
                                             onClick={() => removeDeduction(idx)}
@@ -346,7 +346,7 @@ const FinancialStep = () => {
                                     {(data.financial.investments || []).map((inv, idx) => (
                                         <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '8px 12px' }}>{inv.description}</td>
-                                            <td style={{ padding: '8px 12px' }}>{formatCurrency(parseFloat(inv.value))}</td>
+                                            <td style={{ padding: '8px 12px' }}>{formatCurrency(unmaskCurrency(inv.value))}</td>
                                             <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                                                 <button
                                                     onClick={() => {

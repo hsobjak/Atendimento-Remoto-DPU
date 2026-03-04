@@ -197,7 +197,7 @@ const FamilyStep = () => {
                                     <td style={{ padding: '8px' }}>
                                         {(m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família')
                                             ? <span style={{ color: '#888', fontStyle: 'italic' }}>{m.benefitType} (desconsiderado)</span>
-                                            : formatCurrency(m.incomeValue)
+                                            : formatCurrency(unmaskCurrency(m.incomeValue))
                                         }
                                     </td>
                                     <td style={{ padding: '8px', textAlign: 'right' }}>
