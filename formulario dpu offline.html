@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Socioeconômica DPU (Oficial Res. 240/2025)</title>
+    <style>
+        :root {
+            --dpu-green: #003B28;
+            --dpu-gold: #D4AF37;
+            --bg-gray: #f4f7f6;
+            --border-color: #ced4da;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            padding: 20px;
+            color: #212529;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-top: 6px solid var(--dpu-green);
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #003B28;
+            padding-bottom: 15px;
+        }
+
+        .header-logo { display: flex; align-items: center; gap: 15px; }
+        .logo-box { background: var(--dpu-green); color: white; padding: 12px; border-radius: 4px; font-weight: bold; font-size: 1.5rem; }
+        .header-title { text-align: right; border-left: 4px solid var(--dpu-gold); padding-left: 15px; }
+
+        h3 { color: var(--dpu-green); margin-top: 25px; margin-bottom: 15px; font-size: 1.25rem; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; }
+        h4 { color: #444; margin: 20px 0 10px 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 20px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; color: #495057; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus, textarea:focus { border-color: var(--dpu-green); outline: none; box-shadow: 0 0 0 0.2rem rgba(0,59,40,0.15); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; font-weight: 600; font-size: 0.85rem; }
+
+        .btn {
+            background-color: var(--dpu-green); color: white; border: none; padding: 12px 24px; border-radius: 4px;
+            cursor: pointer; font-weight: bold; font-size: 0.9rem; text-transform: uppercase;
+        }
+        .btn-add { background-color: #198754; margin-top: 8px; font-size: 0.8rem; padding: 8px 16px; }
+        .btn-remove { background: #fff5f5; color: #dc3545; border: 1px solid #ffc107; border-radius: 4px; cursor: pointer; padding: 5px 10px; }
+        .btn-print { background-color: var(--dpu-gold); color: #000; font-size: 1.25rem; padding: 20px; width: 100%; margin-top: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+
+        .result-box {
+            padding: 30px; border-radius: 6px; margin-top: 20px; border: 2px solid #ced4da;
+        }
+        .eligible { background: #ecfdf5; border-color: #10b981; border-left: 12px solid #047857; }
+        .not-eligible { background: #fef2f2; border-color: #ef4444; border-left: 12px solid #b91c1c; }
+
+        .declaration-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 20px; border-radius: 4px; margin-top: 20px; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; margin-bottom: 10px; cursor: pointer; font-weight: 500; }
+        .checkbox-label input { width: auto; margin: 0; }
+
+        /* NOTICE STYLE */
+        .notice-container {
+            margin-top: 30px; padding: 40px; border: 2px solid #b91c1c; position: relative;
+            background: #fff;
+        }
+        .notice-header { text-align: center; font-weight: bold; color: #b91c1c; margin-bottom: 25px; border-bottom: 2px solid #b91c1c; padding-bottom: 15px; }
+
+        /* PRINT SETTINGS */
+        @media print {
+            @page { margin: 20mm; size: A4; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none !important; width: 100%; max-width: none; padding: 0; }
+            .no-print, .btn, .btn-remove { display: none !important; }
+            input, select, textarea { border: none !important; padding: 0 !important; background: transparent !important; resize: none; font-weight: bold; color: #000; }
+            h3 { border-color: #333; }
+            .result-box { border: 2px solid #000 !important; page-break-inside: avoid; }
+            .notice-container { border: 2px solid #000 !important; page-break-before: always; }
+            .checkbox-label input { -webkit-appearance: checkbox; appearance: checkbox; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-logo">
+            <div class="logo-box">DPU</div>
+            <div>
+                <div style="font-weight: bold; color: var(--dpu-green); font-size: 1.3rem;">DEFENSORIA PÚBLICA DA UNIÃO</div>
+                <div style="font-size: 0.8rem; color: #666;">Assistência Jurídica Integral e Gratuita</div>
+            </div>
+        </div>
+        <div class="header-title">
+            <h2 style="margin: 0; font-size: 1.25rem;">Formulário Socioeconômico</h2>
+            <small style="color: #666;">Conforme Resolução CSDPU nº 240/2025</small>
+        </div>
+    </header>
+
+    <!-- 1. IDENTIFICAÇÃO DO ASSISTIDO -->
+    <div class="section">
+        <h3>1. Identificação do Assistido</h3>
+        <div class="form-group"><label>Nome Completo</label><input type="text" placeholder="..."></div>
+        <div class="grid-3">
+            <div class="form-group"><label>CPF</label><input type="text" placeholder="000.000.000-00"></div>
+            <div class="form-group"><label>RG</label><input type="text" placeholder="..."></div>
+            <div class="form-group"><label>Data de Nascimento</label><input type="text" placeholder="DD/MM/AAAA"></div>
+        </div>
+        <div class="grid">
+            <div class="form-group">
+                <label>Estado Civil</label>
+                <select>
+                    <option value="">Selecione...</option>
+                    <option>Solteiro(a)</option>
+                    <option>Casado(a) / União Estável</option>
+                    <option>Divorciado(a)</option>
+                    <option>Viúvo(a)</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Profissão</label><input type="text"></div>
+        </div>
+
+        <h4>Endereço Residencial</h4>
+        <div class="grid" style="grid-template-columns: 3fr 1fr;">
+            <div class="form-group"><label>Logradouro (Rua, Av.)</label><input type="text"></div>
+            <div class="form-group"><label>Nº</label><input type="text"></div>
+        </div>
+        <div class="grid-3">
+            <div class="form-group"><label>Bairro</label><input type="text"></div>
+            <div class="form-group"><label>CEP</label><input type="text" placeholder="00000-000"></div>
+            <div class="form-group"><label>Complemento</label><input type="text"></div>
+        </div>
+        <div class="grid">
+            <div class="form-group"><label>Telefone / WhatsApp</label><input type="text"></div>
+            <div class="form-group"><label>E-mail</label><input type="email"></div>
+        </div>
+    </div>
+
+    <!-- 2. REPRESENTAÇÃO E PRIORIDADES -->
+    <div class="section">
+        <h3>2. Representação e Prioridades</h3>
+        <div class="grid" style="grid-template-columns: 1fr 1.5fr;">
+            <div class="form-group">
+                <label>Representado por terceiro?</label>
+                <select id="isRep" onchange="document.getElementById('repField').style.display=(this.value==='sim'?'block':'none')">
+                    <option value="nao">Não, requerente próprio</option>
+                    <option value="sim">Sim, representado</option>
+                </select>
+            </div>
+            <div class="form-group" id="repField" style="display:none;">
+                <label>Nome do Representante</label>
+                <input type="text">
+            </div>
+        </div>
+        <div class="grid no-print">
+            <label class="checkbox-label"><input type="checkbox"> Idoso (60+)</label>
+            <label class="checkbox-label"><input type="checkbox"> Pessoa com Deficiência (PcD)</label>
+            <label class="checkbox-label"><input type="checkbox"> Doença Grave</label>
+            <label class="checkbox-label"><input type="checkbox"> Caso de Urgência</label>
+        </div>
+    </div>
+
+    <!-- 3. COMPOSIÇÃO FAMILIAR -->
+    <div class="section">
+        <h3>3. Composição Familiar e Renda Bruta</h3>
+        <table id="familyTable">
+            <thead>
+                <tr><th>Nome</th><th>Parentesco</th><th>Renda</th><th>Valor (R$)</th><th class="no-print">#</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="no-print" style="margin-top:10px; background:#f8f9fa; padding:15px; border: 1px solid #ddd;">
+            <div class="grid-4">
+                <input type="text" id="fm_name" placeholder="Nome">
+                <select id="fm_kin">
+                    <option>Requerente</option><option>Cônjuge</option><option>Filho(a)</option><option>Pai/Mãe</option><option>Irmão(ã)</option><option>Outro</option>
+                </select>
+                <select id="fm_type">
+                    <option value="Formal">Trabalho Formal (CLT)</option>
+                    <option value="Informal">Informal / Autônomo</option>
+                    <option value="Aposentadoria">Aposentadoria / Pensão</option>
+                    <option value="BPC">BPC (Não contabiliza)</option>
+                    <option value="Bolsa">Bolsa Família (Não contabiliza)</option>
+                </select>
+                <input type="number" id="fm_val" placeholder="0.00">
+            </div>
+            <button class="btn btn-add" onclick="addM()">+ Adicionar Membro</button>
+        </div>
+    </div>
+
+    <!-- 4. ANÁLISE FINANCEIRA E DEDUÇÕES -->
+    <div class="section">
+        <h3>4. Análise Financeira e Gastos Extraordinários</h3>
+        <div class="grid-3">
+            <div class="form-group"><label>Aluguel (R$)</label><input type="number" class="calc-cost"></div>
+            <div class="form-group"><label>Água/Luz (R$)</label><input type="number" class="calc-cost"></div>
+            <div class="form-group"><label>Alimentação (R$)</label><input type="number" class="calc-cost"></div>
+        </div>
+        <div class="grid-3">
+            <div class="form-group"><label>Transporte (R$)</label><input type="number" class="calc-cost"></div>
+            <div class="form-group"><label>Saúde Comum (R$)</label><input type="number" class="calc-cost"></div>
+            <div class="form-group"><label>Educação (R$)</label><input type="number" class="calc-cost"></div>
+        </div>
+
+        <h4>Gastos Extraordinários (Deduções Art. 3º)</h4>
+        <div id="dedList"></div>
+        <div class="no-print grid" style="margin-top:10px;">
+            <input type="text" id="ded_desc" placeholder="Ex: Medicamento oncologia">
+            <input type="number" id="ded_val" placeholder="0.00">
+            <button class="btn btn-add" onclick="addD()">+ Adicionar Dedução</button>
+        </div>
+    </div>
+
+    <!-- 5. PATRIMÔNIO E CONTEXTO -->
+    <div class="section">
+        <h3>5. Patrimônio e Contexto da Demanda</h3>
+        <div class="grid">
+            <div class="form-group">
+                <label>Tipo de Imóvel</label>
+                <select onchange="updateUI()"><option>Não possui</option><option>Moradia Própria Única</option><option>Imóvel Extra / Terrenos</option></select>
+            </div>
+            <div class="form-group">
+                <label>Veículos</label>
+                <select onchange="updateUI()"><option>Não possui</option><option>Popular / Trabalho</option><option>Luxo / Alto Valor</option></select>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="form-group">
+                <label>Tipo de Demanda</label>
+                <select id="demType" onchange="updateUI()">
+                    <option value="G">Cível Geral / Criminal / Previdenciário</option>
+                    <option value="S">Cível - Saúde (Tratamentos)</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Objeto / Pedido</label><input type="text"></div>
+        </div>
+        <div class="form-group">
+            <label>Observações Adicionais do Atendimento</label>
+            <textarea rows="3" placeholder="Informações relevantes para o defensor..."></textarea>
+        </div>
+    </div>
+
+    <!-- RESULTADO CONSOLIDADO -->
+    <div id="resBlock" class="result-box">
+        <h3 id="resSt" style="border:none; margin:0; padding:0;">RESULTADO DA PRÉ-AVALIAÇÃO</h3>
+        <div class="grid" style="margin-top:15px;">
+            <div>
+                <p><strong>Renda Bruta Familiar:</strong> <span id="lblG">R$ 0,00</span></p>
+                <p><strong>Total de Deduções:</strong> <span id="lblD">R$ 0,00</span></p>
+            </div>
+            <div>
+                <p><strong>RENDA LÍQUIDA:</strong> <span id="lblN" style="font-size:1.3rem;">R$ 0,00</span></p>
+                <p><strong>PER CAPITA:</strong> <span id="lblPC">R$ 0,00</span></p>
+            </div>
+        </div>
+        <div style="background:#fff; border:1px solid #ddd; padding:15px; margin-top:15px; font-size:0.95rem;">
+            <strong>Fundamentação:</strong> <span id="lblLaw">Aguardando preenchimento...</span>
+        </div>
+    </div>
+
+    <!-- DECLARAÇÕES -->
+    <div class="declaration-box">
+        <label class="checkbox-label"><input type="checkbox"> Atesto a veracidade das informações prestadas sob as penas da lei.</label>
+        <label class="checkbox-label"><input type="checkbox"> Declaro hipossuficiência econômica para fins de assistência da DPU.</label>
+        <div style="margin-top:40px; text-align:center;">
+            <div style="border-top:1px solid #000; width:300px; margin:0 auto; padding-top:10px;">Assinatura do Assistido(a) / Representante</div>
+            <div style="margin-top:10px; font-size:0.85rem; color:#444;">Data: ___/___/2026</div>
+        </div>
+    </div>
+
+    <button class="btn btn-print no-print" onclick="window.print()">Exportar Relatório / Salvar em PDF</button>
+
+    <!-- COMUNICADO DE INDEFERIMENTO (PÁGINA EXTRA SE NEGADO) -->
+    <div id="negNotice" class="notice-container" style="display:none;">
+        <div class="notice-header">
+            COMUNICADO DE INDEFERIMENTO DA ASSISTÊNCIA<br>
+            e ARQUIVAMENTO DO PAJ
+        </div>
+        <p style="text-align:justify;">Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até 2 (dois) salários mínimos, atualmente <strong>R$ 3.036,00</strong>.</p>
+        
+        <p style="text-align:justify;">Na pesquisa socioeconômica realizada, ficou demonstrado que sua renda líquida familiar é superior ao limite estabelecido.</p>
+        
+        <div style="background:#f8f9fa; padding:15px; border:1px solid #ccc; text-align:center; font-weight:bold; font-size:1.1rem; margin:20px 0;">
+            Renda Líquida Apurada: <span id="negNet"></span>
+        </div>
+
+        <p style="text-align:justify;">As despesas ordinárias e comuns (água, luz, telefone, alimentação, moradia, etc) e aquelas que evidenciam gastos não compatíveis com a condição de pobreza (plano de saúde, tv por assinatura, escolas privadas etc) não são dedutíveis para fins de atendimento. Somente gastos extraordinários com saúde decorrentes de moléstia ou acidente e os gastos extraordinários considerados indispensáveis, temporários e imprevistos poderão ser deduzidos da renda bruta familiar (Resolução nº 240/2025 do CSDPU).</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0;">
+            <div style="border:1px solid #ddd; padding:10px;">Gastos c/ Saúde extraord: <span id="negS" style="float:right; font-weight:bold;"></span></div>
+            <div style="border:1px solid #ddd; padding:10px;">Gatos Indispensáveis: <span id="negI" style="float:right; font-weight:bold;"></span></div>
+        </div>
+
+        <p style="text-align:justify; font-weight:bold;">MOTIVO DO INDEFERIMENTO: <span id="negReas" style="color:#b91c1c;"></span></p>
+        
+        <p style="font-size:0.85rem; color:#666; margin-top:30px;">
+            Este resumo tem caráter informativo sobre critérios objetivos. Cabe recurso desta decisão ao Defensor Público-Chefe no prazo de 10 dias.
+        </p>
+    </div>
+</div>
+
+<script>
+    let fam = []; let deds = [];
+    const SM = 1518.00;
+    const fmt = (v) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+
+    function addM(){
+        const name = document.getElementById('fm_name').value;
+        const kin = document.getElementById('fm_kin').value;
+        const type = document.getElementById('fm_type').value;
+        const val = parseFloat(document.getElementById('fm_val').value) || 0;
+        if(!name) return;
+        fam.push({name, kin, type, val});
+        updateUI();
+        document.getElementById('fm_name').value = ''; document.getElementById('fm_val').value = '';
+    }
+
+    function addD(){
+        const d = document.getElementById('ded_desc').value;
+        const v = parseFloat(document.getElementById('ded_val').value) || 0;
+        if(!d || v <= 0) return;
+        deds.push({d, v});
+        updateUI();
+        document.getElementById('ded_desc').value = ''; document.getElementById('ded_val').value = '';
+    }
+
+    function removeM(i){ fam.splice(i,1); updateUI(); }
+    function removeD(i){ deds.splice(i,1); updateUI(); }
+
+    function updateUI(){
+        const tb = document.querySelector('#familyTable tbody'); tb.innerHTML = '';
+        let grossIncome = 0;
+        fam.forEach((m, i) => {
+            const isExcl = (m.type === 'BPC' || m.type === 'Bolsa');
+            if(!isExcl) grossIncome += m.val;
+            tb.innerHTML += `<tr><td>${m.name}</td><td>${m.kin}</td><td>${m.type}</td><td>${isExcl ? '<small>(Excluído)</small>' : fmt(m.val)}</td><td class="no-print"><button class="btn-remove" onclick="removeM(${i})">X</button></td></tr>`;
+        });
+
+        const dedB = document.getElementById('dedList'); dedB.innerHTML = '';
+        let totDed = 0;
+        deds.forEach((d, i) => {
+            totDed += d.v;
+            dedB.innerHTML += `<div>• ${d.d}: ${fmt(d.v)} <button class="btn-remove no-print" onclick="removeD(${i})">X</button></div>`;
+        });
+
+        const net = Math.max(0, grossIncome - totDed);
+        const pc = net / (fam.length || 1);
+        const typ = document.getElementById('demType').value;
+
+        document.getElementById('lblG').innerText = fmt(grossIncome);
+        document.getElementById('lblD').innerText = fmt(totDed);
+        document.getElementById('lblN').innerText = fmt(net);
+        document.getElementById('lblPC').innerText = fmt(pc);
+
+        let limT = SM * 2; let limPC = SM * 0.5; let art = "Art. 2º";
+        if(typ === 'S') { limT = SM * 5; limPC = SM * 1; art = "Art. 3º"; }
+
+        const eligible = (fam.length > 0) && (net <= limT || pc <= limPC);
+        const rb = document.getElementById('resBlock');
+        const st = document.getElementById('resSt');
+        const nt = document.getElementById('negNotice');
+
+        if(fam.length === 0){
+            document.getElementById('lblLaw').innerText = "Aguardando preenchimento...";
+            rb.className = "result-box";
+            nt.style.display = "none";
+        } else if(eligible){
+            st.innerText = "DEFERIMENTO - ENQUADRA-SE";
+            rb.className = "result-box eligible";
+            document.getElementById('lblLaw').innerText = `O atendimento enquadra-se nos critérios objetivos da Resolução CSDPU nº 240/2025 (${art}), com renda líquida de ${fmt(net)} e per capita de ${fmt(pc)}.`;
+            nt.style.display = "none";
+        } else {
+            st.innerText = "INDEFERIMENTO OBJETIVO";
+            rb.className = "result-box not-eligible";
+            document.getElementById('lblLaw').innerText = `Não se enquadra nos critérios objetivos de renda da Resolução CSDPU nº 240/2025.`;
+            nt.style.display = "block";
+            
+            // Fill Notice
+            document.getElementById('negNet').innerText = fmt(net);
+            document.getElementById('negS').innerText = fmt(totDed); 
+            document.getElementById('negI').innerText = fmt(0); 
+            document.getElementById('negReas').innerText = `Renda Líquida (${fmt(net)}) supera o limite de ${fmt(limT)} da Portaria.`;
+        }
+    }
+</script>
+</body>
+</html>

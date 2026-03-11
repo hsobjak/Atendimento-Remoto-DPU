@@ -143,7 +143,15 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
     if (isComplete) {
         row('RG', data.personal?.rg);
-        row('Nascimento', data.personal?.birthDate ? new Date(data.personal.birthDate).toLocaleDateString('pt-BR') : '-');
+        const formatDate = (dateStr) => {
+            if (!dateStr) return '-';
+            if (dateStr.includes('-')) {
+                const [year, month, day] = dateStr.split('-');
+                return `${day}/${month}/${year}`;
+            }
+            return dateStr;
+        };
+        row('Nascimento', formatDate(data.personal?.birthDate));
         row('Estado Civil', data.personal?.civilStatus);
         row('Profissão', data.personal?.profession);
         row('Telefone', data.personal?.phone);
