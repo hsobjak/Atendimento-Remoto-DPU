@@ -13,6 +13,10 @@ const FamilyStep = () => {
     const { data, updateData } = useAssessment();
     const navigate = useNavigate();
 
+    // Local state for new member form
+    const [newMember, setNewMember] = useState({
+        name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0', cpf: ''
+    });
     const [editIndex, setEditIndex] = useState(null);
 
     // Auto-edit applicant on mount if present
