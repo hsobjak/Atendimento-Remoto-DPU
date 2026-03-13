@@ -40,6 +40,32 @@ const ProfileStep = () => {
             alert("Preencha todos os campos obrigatórios: Nome, CPF, Logradouro, Nº, Bairro e CEP.");
             return;
         }
+
+        // Auto-sync applicant to family members if "Não, requerente próprio"
+        // Even if represented, the applicant is the core of the family group
+        const members = [...(data.family.members || [])];
+        const reqIdx = members.findIndex(m => m.kinship === 'Requerente (Próprio)');
+
+        if (reqIdx > -1) {
+            // Update existing
+            members[reqIdx] = {
+                ...members[reqIdx],
+                name: data.personal.name,
+                cpf: data.personal.cpf
+            };
+        } else {
+            // Add as first member
+            members.unshift({
+                name: data.personal.name,
+                cpf: data.personal.cpf,
+                kinship: 'Requerente (Próprio)',
+                age: '',
+                incomeSource: 'Sem Renda',
+                incomeValue: '0'
+            });
+        }
+
+        updateData('family', { members });
         navigate('/step/2');
     };
 

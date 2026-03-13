@@ -129,9 +129,9 @@
     <!-- 1. IDENTIFICAÇÃO DO ASSISTIDO -->
     <div class="section">
         <h3>1. Identificação do Assistido</h3>
-        <div class="form-group"><label>Nome Completo</label><input type="text" placeholder="..."></div>
+        <div class="form-group"><label>Nome Completo</label><input type="text" placeholder="..." id="app_name" oninput="syncApp()"></div>
         <div class="grid-3">
-            <div class="form-group"><label>CPF</label><input type="text" placeholder="000.000.000-00"></div>
+            <div class="form-group"><label>CPF</label><input type="text" placeholder="000.000.000-00" id="app_cpf" oninput="syncApp()"></div>
             <div class="form-group"><label>RG</label><input type="text" placeholder="..."></div>
             <div class="form-group"><label>Data de Nascimento</label><input type="text" placeholder="DD/MM/AAAA"></div>
         </div>
@@ -141,7 +141,8 @@
                 <select>
                     <option value="">Selecione...</option>
                     <option>Solteiro(a)</option>
-                    <option>Casado(a) / União Estável</option>
+                    <option>Casado(a)</option>
+                    <option>União Estável</option>
                     <option>Divorciado(a)</option>
                     <option>Viúvo(a)</option>
                 </select>
@@ -202,9 +203,15 @@
             <div class="grid-4">
                 <input type="text" id="fm_name" placeholder="Nome">
                 <select id="fm_kin">
-                    <option>Requerente</option><option>Cônjuge</option><option>Filho(a)</option><option>Pai/Mãe</option><option>Irmão(ã)</option><option>Outro</option>
+                    <option>Cônjuge/Companheiro(a)</option>
+                    <option>Filho(a)</option>
+                    <option>Pai/Mãe</option>
+                    <option>Irmão/Irmã</option>
+                    <option>Outro</option>
+                    <option>Requerente (Próprio)</option>
                 </select>
                 <select id="fm_type">
+                    <option value="Sem Renda">Sem Renda</option>
                     <option value="Formal">Trabalho Formal (CLT)</option>
                     <option value="Informal">Informal / Autônomo</option>
                     <option value="Aposentadoria">Aposentadoria / Pensão</option>
@@ -221,14 +228,14 @@
     <div class="section">
         <h3>4. Análise Financeira e Gastos Extraordinários</h3>
         <div class="grid-3">
-            <div class="form-group"><label>Aluguel (R$)</label><input type="number" class="calc-cost"></div>
-            <div class="form-group"><label>Água/Luz (R$)</label><input type="number" class="calc-cost"></div>
-            <div class="form-group"><label>Alimentação (R$)</label><input type="number" class="calc-cost"></div>
+            <div class="form-group"><label>Aluguel (R$)</label><input type="number" class="calc-cost" oninput="updateUI()"></div>
+            <div class="form-group"><label>Água/Luz (R$)</label><input type="number" class="calc-cost" oninput="updateUI()"></div>
+            <div class="form-group"><label>Alimentação (R$)</label><input type="number" class="calc-cost" oninput="updateUI()"></div>
         </div>
         <div class="grid-3">
-            <div class="form-group"><label>Transporte (R$)</label><input type="number" class="calc-cost"></div>
-            <div class="form-group"><label>Saúde Comum (R$)</label><input type="number" class="calc-cost"></div>
-            <div class="form-group"><label>Educação (R$)</label><input type="number" class="calc-cost"></div>
+            <div class="form-group"><label>Transporte (R$)</label><input type="number" class="calc-cost" oninput="updateUI()"></div>
+            <div class="form-group"><label>Saúde Comum (R$)</label><input type="number" class="calc-cost" oninput="updateUI()"></div>
+            <div class="form-group"><label>Educação (R$)</label><input type="number" class="calc-cost" oninput="updateUI()"></div>
         </div>
 
         <h4>Gastos Extraordinários (Deduções Art. 3º)</h4>
@@ -333,6 +340,25 @@
     const SM = 1621.00;
     const fmt = (v) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
 
+    function syncApp() {
+        const name = document.getElementById('app_name').value;
+        const cpf = document.getElementById('app_cpf').value;
+        
+        let reqIdx = fam.findIndex(m => m.kin === 'Requerente (Próprio)');
+        
+        if (name || cpf) {
+            if (reqIdx === -1) {
+                // Se não existe, adiciona no topo
+                fam.unshift({name, kin: 'Requerente (Próprio)', type: 'Sem Renda', val: 0, cpf});
+            } else {
+                // Se existe, apenas atualiza
+                fam[reqIdx].name = name;
+                fam[reqIdx].cpf = cpf;
+            }
+        }
+        updateUI();
+    }
+
     function addM(){
         const name = document.getElementById('fm_name').value;
         const kin = document.getElementById('fm_kin').value;
@@ -353,7 +379,12 @@
         document.getElementById('ded_desc').value = ''; document.getElementById('ded_val').value = '';
     }
 
-    function removeM(i){ fam.splice(i,1); updateUI(); }
+    function removeM(i){ 
+        // Se for o requerente principal vindo do sync, talvez não devesse remover? 
+        // Mas o usuário pode querer gerenciar. Vamos permitir.
+        fam.splice(i,1); 
+        updateUI(); 
+    }
     function removeD(i){ deds.splice(i,1); updateUI(); }
 
     function updateUI(){
