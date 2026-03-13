@@ -337,7 +337,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.setFontSize(11);
         doc.setTextColor(0);
 
-        const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até 2(dois) salários mínimos, atualmente R$ 3.036,00.`;
+        const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até 2(dois) salários mínimos, atualmente R$ 3.242,00.`;
         const s1 = doc.splitTextToSize(t1, pageWidth - 2 * margin);
         doc.text(s1, margin, y, { align: 'justify', maxWidth: pageWidth - 2 * margin });
         y += s1.length * 5 + 4;

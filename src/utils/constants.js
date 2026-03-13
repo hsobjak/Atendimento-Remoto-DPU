@@ -1,5 +1,5 @@
 
-export const SALARIO_MINIMO = 1518.00;
+export const SALARIO_MINIMO = 1621.00;
 
 export const LIMITES = {
     RENDA_FAMILIAR_GERAL: 2 * SALARIO_MINIMO,
