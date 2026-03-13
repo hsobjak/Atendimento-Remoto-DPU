@@ -344,14 +344,16 @@
         const name = document.getElementById('app_name').value;
         const cpf = document.getElementById('app_cpf').value;
         
+        // Auto-fill entry fields for the applicant
+        document.getElementById('fm_name').value = name;
+        document.getElementById('fm_cpf_m') ? document.getElementById('fm_cpf_m').value = cpf : null; // In case I add CPF input to fm
+        document.getElementById('fm_kin').value = 'Requerente (Próprio)';
+
         let reqIdx = fam.findIndex(m => m.kin === 'Requerente (Próprio)');
-        
         if (name || cpf) {
             if (reqIdx === -1) {
-                // Se não existe, adiciona no topo
                 fam.unshift({name, kin: 'Requerente (Próprio)', type: 'Sem Renda', val: 0, cpf});
             } else {
-                // Se existe, apenas atualiza
                 fam[reqIdx].name = name;
                 fam[reqIdx].cpf = cpf;
             }

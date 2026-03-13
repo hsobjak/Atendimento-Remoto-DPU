@@ -13,11 +13,21 @@ const FamilyStep = () => {
     const { data, updateData } = useAssessment();
     const navigate = useNavigate();
 
-    // Local state for new member form
-    const [newMember, setNewMember] = useState({
-        name: '', kinship: '', age: '', incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0', cpf: ''
-    });
     const [editIndex, setEditIndex] = useState(null);
+
+    // Auto-edit applicant on mount if present
+    React.useEffect(() => {
+        const members = data.family.members || [];
+        const reqIdx = members.findIndex(m => m.kinship === 'Requerente (Próprio)');
+        
+        if (reqIdx > -1 && members[reqIdx].incomeValue === '0' && !members[reqIdx].age) {
+            setEditIndex(reqIdx);
+            setNewMember({
+                ...members[reqIdx],
+                incomeValue: maskCurrency(members[reqIdx].incomeValue)
+            });
+        }
+    }, []); // Run only once on mount
 
     const handleAddMember = () => {
         if (!newMember.name || !newMember.kinship) {
