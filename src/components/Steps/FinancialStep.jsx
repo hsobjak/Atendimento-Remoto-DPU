@@ -4,6 +4,7 @@ import { useAssessment } from '../../context/AssessmentContext';
 import { Plus, Trash2 } from 'lucide-react';
 import { maskCurrency, unmaskCurrency } from '../../utils/masks';
 import { formatCurrency } from '../../utils/businessRules';
+import { TIPOS_DEMANDA } from '../../utils/constants';
 
 const FinancialStep = () => {
     const { data, updateData } = useAssessment();
@@ -433,10 +434,9 @@ const FinancialStep = () => {
                 <label className="form-label">Tipo de Demanda</label>
                 <select className="form-control" value={data.demand?.type} onChange={e => updateDemand('type', e.target.value)}>
                     <option value="">Selecione...</option>
-                    <option value="Cível Geral">Cível Geral</option>
-                    <option value="Cível Saúde">Cível Saúde</option>
-                    <option value="Criminal">Criminal</option>
-                    <option value="Previdenciário">Previdenciário</option>
+                    {Object.values(TIPOS_DEMANDA).map(type => (
+                        <option key={type} value={type}>{type}</option>
+                    ))}
                 </select>
             </div>
 
