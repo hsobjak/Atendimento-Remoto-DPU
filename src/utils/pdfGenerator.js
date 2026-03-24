@@ -427,7 +427,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
         doc.text(sc4, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
 
-        y = pageHeight - 45;
+        y += 20;
         doc.setDrawColor(0);
         doc.line(margin, y, margin + 70, y);
         doc.line(pageWidth - margin - 70, y, pageWidth - margin, y);
