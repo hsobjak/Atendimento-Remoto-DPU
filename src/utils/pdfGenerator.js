@@ -407,6 +407,9 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         const spaceBetween = 2.5; 
         const totalHeight = 5 + (sc1.length * 5 + spaceBetween) + (sc2.length * 5 + spaceBetween) + (sc3.length * 5 + spaceBetween) + (sc4.length * 5) + 5;
 
+        // Garantir que haja espaço suficiente para o quadro e as assinaturas
+        checkPageBreak(totalHeight + 40);
+
         doc.setFillColor(235);
         doc.rect(margin, y, pageWidth - 2 * margin, totalHeight, 'F');
         y += 5;
