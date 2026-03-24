@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import { formatCurrency, calculateNetIncome } from './businessRules';
 import { unmaskCurrency } from './masks';
+import { TIPOS_DEMANDA, LIMITES } from './constants';
 
 const getDataUri = (url) => {
     return new Promise((resolve) => {
@@ -337,7 +338,14 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.setFontSize(11);
         doc.setTextColor(0);
 
-        const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até 2(dois) salários mínimos, atualmente R$ 3.242,00.`;
+        let limitMwText = '2(dois)';
+        let limitValue = LIMITES.RENDA_FAMILIAR_GERAL;
+        if (data.demand?.type === TIPOS_DEMANDA.CIVEL_SAUDE) {
+            limitMwText = '5(cinco)';
+            limitValue = LIMITES.RENDA_SAUDE_TOTAL;
+        }
+
+        const t1 = `Para fins de atendimento na Defensoria Pública da União, a Resolução nº 240, de 04 de dezembro de 2025, do Conselho Superior da DPU, estabelece que o valor de presunção de necessidade econômica é de renda familiar bruta de até ${limitMwText} salários mínimos, atualmente ${formatCurrency(limitValue)}.`;
         const s1 = doc.splitTextToSize(t1, pageWidth - 2 * margin);
         doc.text(s1, margin, y, { align: 'justify', maxWidth: pageWidth - 2 * margin });
         y += s1.length * 5 + 4;
