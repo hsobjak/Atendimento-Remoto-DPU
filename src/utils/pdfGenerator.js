@@ -389,30 +389,39 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.text(formatCurrency(0), pageWidth - margin - 17.5, y, { align: 'center' });
         y += s5.length * 5 + 7;
 
-        doc.setFillColor(235);
-        doc.rect(margin, y, pageWidth - 2 * margin, 75, 'F');
-        y += 5;
-
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9.5);
         const c1 = `Considerando que a renda familiar bruta declarada ultrapassa o parâmetro definido na Resolução nº 240 / 2025, do CSDPU, fica o requerente intimado do INDEFERIMENTO do requerimento de assistência jurídica gratuita e, consequentemente, do arquivamento do Procedimento de Assistência Jurídica - PAJ.`;
         const sc1 = doc.splitTextToSize(c1, pageWidth - 2 * margin - 10);
-        doc.text(sc1, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
-        y += sc1.length * 5 + 3;
 
         const c2 = `O requerente fica ciente de que, em razão do indeferimento da assistência jurídica gratuita, não haverá prática de qualquer ato, administrativo ou judicial, em seu favor, e que eventuais prazos judiciais existentes continuam em curso, normalmente.`;
         const sc2 = doc.splitTextToSize(c2, pageWidth - 2 * margin - 10);
-        doc.text(sc2, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
-        y += sc2.length * 5 + 3;
 
         doc.setFont("helvetica", "normal");
         const c3 = `Caso não concorde com o indeferimento, o requerente poderá, no prazo de 30 dias, apresentar documentação complementar que prove sua condição de pobreza, juntamente com os comprovantes de renda de todos os integrantes da família e com comprovantes dos gastos extraordinários dedutíveis, se houver.`;
         const sc3 = doc.splitTextToSize(c3, pageWidth - 2 * margin - 10);
-        doc.text(sc3, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
-        y += sc3.length * 5 + 3;
 
         const c4 = `Apresentada a documentação, será reanalisado o requerimento pelo Defensor Público responsável, que poderá manter o arquivamento ou deferir a assistência jurídica solicitada, caso considere provada a condição de pobreza.`;
         const sc4 = doc.splitTextToSize(c4, pageWidth - 2 * margin - 10);
+
+        const spaceBetween = 2.5; 
+        const totalHeight = 5 + (sc1.length * 5 + spaceBetween) + (sc2.length * 5 + spaceBetween) + (sc3.length * 5 + spaceBetween) + (sc4.length * 5) + 5;
+
+        doc.setFillColor(235);
+        doc.rect(margin, y, pageWidth - 2 * margin, totalHeight, 'F');
+        y += 5;
+
+        doc.setFont("helvetica", "bold");
+        doc.text(sc1, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
+        y += sc1.length * 5 + spaceBetween;
+
+        doc.text(sc2, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
+        y += sc2.length * 5 + spaceBetween;
+
+        doc.setFont("helvetica", "normal");
+        doc.text(sc3, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
+        y += sc3.length * 5 + spaceBetween;
+
         doc.text(sc4, margin + 5, y, { align: 'justify', maxWidth: pageWidth - 2 * margin - 10 });
 
         y = pageHeight - 45;
