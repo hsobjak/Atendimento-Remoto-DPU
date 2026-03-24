@@ -78,12 +78,15 @@ export const checkEligibility = (data) => {
         };
     }
 
+    if (financial?.deductionItems?.length > 0) {
+        alerts.push('Foram declarados gastos extraordinários que devem ser avaliados pelo/a Defensor/a.');
+    }
+
     return {
         status: 'NOT_ELIGIBLE',
         message: 'Não se enquadra nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
         justification: `Renda superior aos limites objetivos (Total: ${formatCurrency(netIncome)} > ${formatCurrency(limitTotal)}).`,
         appliedArticles,
-        alerts: ['Foram declarados gastos extraordinários que devem ser avaliados pelo/a Defensor/a.']
-
+        alerts
     };
 };
