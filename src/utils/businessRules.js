@@ -66,7 +66,45 @@ export const checkEligibility = (data) => {
         };
     }
 
-    // 3. Quantitative
+    // 3. Presunção Automática do Requerente (Art. 2º, Incisos III, IV e V)
+    const requerente = family.members.find(m => m.kinship === 'Requerente (Próprio)');
+    if (requerente) {
+        if (requerente.benefitType === 'Bolsa Família') {
+            appliedArticles.push('Art. 2º, III (Bolsa Família)');
+            return {
+                status: 'ELIGIBLE_AUTOMATIC',
+                message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
+                justification: 'Requerente titular do Programa Bolsa Família.',
+                appliedArticles,
+                alerts
+            };
+        }
+        if (requerente.benefitType === 'BPC') {
+            appliedArticles.push('Art. 2º, IV (BPC/LOAS)');
+            return {
+                status: 'ELIGIBLE_AUTOMATIC',
+                message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
+                justification: 'Requerente titular do Benefício de Prestação Continuada (BPC/LOAS).',
+                appliedArticles,
+                alerts
+            };
+        }
+
+        const isElderly = data.personal?.priorities?.elderly || (parseInt(requerente.age) >= 60);
+        const reqIncomeVal = unmaskCurrency(requerente.incomeValue);
+        if (isElderly && requerente.incomeSource === 'Aposentadoria' && reqIncomeVal <= SALARIO_MINIMO) {
+            appliedArticles.push('Art. 2º, V (Idoso / Previdenciário)');
+            return {
+                status: 'ELIGIBLE_AUTOMATIC',
+                message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
+                justification: `Requerente idoso cuja renda provém de benefício previdenciário de até 1 salário-mínimo.`,
+                appliedArticles,
+                alerts
+            };
+        }
+    }
+
+    // 4. Quantitative
     if (netIncome <= limitTotal || perCapita <= limitPerCapita) {
         appliedArticles.push('Art. 2º (Critério de Renda)');
         return {
