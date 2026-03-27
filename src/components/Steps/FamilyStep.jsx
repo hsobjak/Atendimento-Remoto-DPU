@@ -17,7 +17,7 @@ const FamilyStep = () => {
     const [newMember, setNewMember] = useState({
         name: '', kinship: '', age: '', cpf: '',
         incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0',
-        hasSecondIncome: false, incomeSource2: 'Sem Renda', benefitType2: '', incomeValue2: '0'
+        otherIncomes: []
     });
     const [editIndex, setEditIndex] = useState(null);
 
@@ -60,7 +60,7 @@ const FamilyStep = () => {
         setNewMember({ 
             name: '', kinship: '', age: '', cpf: '',
             incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0',
-            hasSecondIncome: false, incomeSource2: 'Sem Renda', benefitType2: '', incomeValue2: '0'
+            otherIncomes: []
         });
     };
 
@@ -70,10 +70,10 @@ const FamilyStep = () => {
         setNewMember({
             ...member,
             incomeValue: maskCurrency(member.incomeValue || '0'),
-            incomeValue2: maskCurrency(member.incomeValue2 || '0'),
-            hasSecondIncome: member.hasSecondIncome || false,
-            incomeSource2: member.incomeSource2 || 'Sem Renda',
-            benefitType2: member.benefitType2 || ''
+            otherIncomes: (member.otherIncomes || []).map(inc => ({
+                ...inc,
+                incomeValue: maskCurrency(inc.incomeValue || '0')
+            }))
         });
     };
 
@@ -82,14 +82,34 @@ const FamilyStep = () => {
         setNewMember({ 
             name: '', kinship: '', age: '', cpf: '',
             incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0',
-            hasSecondIncome: false, incomeSource2: 'Sem Renda', benefitType2: '', incomeValue2: '0'
+            otherIncomes: []
         });
     };
 
     const removeMember = (index) => {
-
         const updatedMembers = data.family.members.filter((_, i) => i !== index);
         updateData('family', { members: updatedMembers });
+    };
+
+    const addOtherIncome = () => {
+        setNewMember(prev => ({
+            ...prev,
+            otherIncomes: [...prev.otherIncomes, { id: Date.now(), incomeSource: 'Sem Renda', benefitType: '', incomeValue: '0' }]
+        }));
+    };
+
+    const removeOtherIncome = (id) => {
+        setNewMember(prev => ({
+            ...prev,
+            otherIncomes: prev.otherIncomes.filter(inc => inc.id !== id)
+        }));
+    };
+
+    const updateOtherIncome = (id, field, value) => {
+        setNewMember(prev => ({
+            ...prev,
+            otherIncomes: prev.otherIncomes.map(inc => inc.id === id ? { ...inc, [field]: value } : inc)
+        }));
     };
 
     const handleNext = () => {
@@ -191,21 +211,26 @@ const FamilyStep = () => {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem', color: '#004d40', fontWeight: 'bold' }}>
-                    <input 
-                        type="checkbox" 
-                        checked={newMember.hasSecondIncome}
-                        onChange={e => setNewMember({ ...newMember, hasSecondIncome: e.target.checked })}
-                    />
-                    + Adicionar 2ª Fonte de Renda para esta pessoa
-                </label>
+                <button 
+                    className="btn-secondary" 
+                    onClick={addOtherIncome} 
+                    style={{ background: 'none', border: 'none', color: '#004d40', fontWeight: 'bold', padding: 0, textDecoration: 'underline' }}
+                >
+                    + Outras fontes de renda
+                </button>
             </div>
 
-            {newMember.hasSecondIncome && (
-                <div style={{ background: '#f5f5f5', padding: '16px', borderRadius: '6px', marginBottom: '20px', borderLeft: '4px solid #004d40' }}>
+            {newMember.otherIncomes.map((inc, idx) => (
+                <div key={inc.id} style={{ background: '#f5f5f5', padding: '16px', borderRadius: '6px', marginBottom: '20px', borderLeft: '4px solid #004d40', position: 'relative' }}>
+                    <button 
+                        onClick={() => removeOtherIncome(inc.id)}
+                        style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontSize: '0.85rem' }}
+                    >
+                        Remover
+                    </button>
                     <div className="form-group" style={{ marginBottom: '16px' }}>
-                        <label className="form-label">2ª Origem da Renda</label>
-                        <select className="form-control" value={newMember.incomeSource2} onChange={e => setNewMember({ ...newMember, incomeSource2: e.target.value, benefitType2: '' })}>
+                        <label className="form-label">{idx + 2}ª Origem da Renda</label>
+                        <select className="form-control" value={inc.incomeSource} onChange={e => { updateOtherIncome(inc.id, 'incomeSource', e.target.value); updateOtherIncome(inc.id, 'benefitType', ''); }}>
                             <option value="Sem Renda">Sem Renda</option>
                             <option value="Trabalho Formal">Trabalho Formal (CLT)</option>
                             <option value="Informal/Autônomo">Informal/Autônomo</option>
@@ -215,20 +240,20 @@ const FamilyStep = () => {
                         </select>
                     </div>
 
-                    {newMember.incomeSource2 === 'Benefício Social' && (
+                    {inc.incomeSource === 'Benefício Social' && (
                         <div style={{ marginBottom: '16px' }}>
                             <label className="form-label">Qual benefício?</label>
                             <select
                                 className="form-control"
-                                value={newMember.benefitType2}
-                                onChange={e => setNewMember({ ...newMember, benefitType2: e.target.value })}
+                                value={inc.benefitType}
+                                onChange={e => updateOtherIncome(inc.id, 'benefitType', e.target.value)}
                             >
                                 <option value="">Selecione o benefício...</option>
                                 <option value="BPC">BPC – Benefício de Prestação Continuada</option>
                                 <option value="Bolsa Família">Bolsa Família</option>
                                 <option value="Outro">Outro benefício social</option>
                             </select>
-                            {(newMember.benefitType2 === 'BPC' || newMember.benefitType2 === 'Bolsa Família') && (
+                            {(inc.benefitType === 'BPC' || inc.benefitType === 'Bolsa Família') && (
                                 <div style={{ marginTop: '8px', padding: '10px 14px', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '0.85rem', color: '#7d5700' }}>
                                     ⚠️ <strong>Atenção:</strong> Este benefício não será contabilizado na renda familiar.
                                 </div>
@@ -237,17 +262,17 @@ const FamilyStep = () => {
                     )}
 
                     <div>
-                        <label className="form-label">Valor da 2ª Renda (R$)</label>
+                        <label className="form-label">Valor (R$)</label>
                         <input
                             type="text"
                             className="form-control"
                             placeholder="R$ 0,00"
-                            value={newMember.incomeValue2}
-                            onChange={e => setNewMember({ ...newMember, incomeValue2: maskCurrency(e.target.value) })}
+                            value={inc.incomeValue}
+                            onChange={e => updateOtherIncome(inc.id, 'incomeValue', maskCurrency(e.target.value))}
                         />
                     </div>
                 </div>
-            )}
+            ))}
 
             <div style={{ display: 'flex', gap: '8px' }}>
                 <button className="btn-secondary" style={{ flex: 1, borderStyle: editIndex !== null ? 'solid' : 'dashed' }} onClick={handleAddMember}>
@@ -282,20 +307,20 @@ const FamilyStep = () => {
                                     <td style={{ padding: '8px' }}>{m.cpf || '-'}</td>
                                     <td style={{ padding: '8px' }}>{m.kinship}</td>
                                     <td style={{ padding: '8px' }}>
-                                        <div style={{ marginBottom: m.hasSecondIncome ? '4px' : '0' }}>
+                                        <div style={{ marginBottom: (m.otherIncomes && m.otherIncomes.length > 0) ? '4px' : '0' }}>
                                             {(m.benefitType === 'BPC' || m.benefitType === 'Bolsa Família')
                                                 ? <span style={{ color: '#888', fontStyle: 'italic' }}>{formatCurrency(unmaskCurrency(m.incomeValue))} (desconsiderado)</span>
                                                 : formatCurrency(unmaskCurrency(m.incomeValue))
                                             } <span style={{ fontSize: '0.8rem', color: '#666' }}>({m.incomeSource})</span>
                                         </div>
-                                        {m.hasSecondIncome && (
-                                            <div style={{ paddingTop: '4px', borderTop: '1px dashed #ddd' }}>
-                                                {(m.benefitType2 === 'BPC' || m.benefitType2 === 'Bolsa Família')
-                                                    ? <span style={{ color: '#888', fontStyle: 'italic' }}>{formatCurrency(unmaskCurrency(m.incomeValue2))} (desconsiderado)</span>
-                                                    : formatCurrency(unmaskCurrency(m.incomeValue2))
-                                                } <span style={{ fontSize: '0.8rem', color: '#666' }}>({m.incomeSource2})</span>
+                                        {m.otherIncomes && m.otherIncomes.map((inc, i) => (
+                                            <div key={i} style={{ paddingTop: '4px', borderTop: '1px dashed #ddd' }}>
+                                                {(inc.benefitType === 'BPC' || inc.benefitType === 'Bolsa Família')
+                                                    ? <span style={{ color: '#888', fontStyle: 'italic' }}>{formatCurrency(unmaskCurrency(inc.incomeValue || '0'))} (desconsiderado)</span>
+                                                    : formatCurrency(unmaskCurrency(inc.incomeValue || '0'))
+                                                } <span style={{ fontSize: '0.8rem', color: '#666' }}>({inc.incomeSource})</span>
                                             </div>
-                                        )}
+                                        ))}
                                     </td>
                                     <td style={{ padding: '8px', textAlign: 'right' }}>
                                         <button onClick={() => handleEditMember(idx)} style={{ color: '#004d40', background: 'none', marginRight: '8px' }} title="Editar"><Pencil size={16} /></button>

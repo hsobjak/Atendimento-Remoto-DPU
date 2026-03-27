@@ -277,17 +277,19 @@ export const generatePDF = async (data, result, mode = 'objective') => {
             doc.setTextColor(0);
             y += 5;
 
-            if (m.hasSecondIncome) {
-                checkPageBreak(5);
-                const isBpcBolsa2 = m.benefitType2 === 'BPC' || m.benefitType2 === 'Bolsa Família';
-                const val2 = unmaskCurrency(m.incomeValue2 || '0');
-                const rendaStr2 = isBpcBolsa2 ? m.benefitType2 : (val2 > 0 ? formatCurrency(val2) : 'R$ 0,00');
-                
-                doc.text(String(isBpcBolsa2 ? 'Benefício' : (m.incomeSource2 || '-')).substring(0, 15), colX[4], y);
-                if (isBpcBolsa2) doc.setTextColor(120);
-                doc.text(rendaStr2, colX[5], y);
-                doc.setTextColor(0);
-                y += 5;
+            if (m.otherIncomes && m.otherIncomes.length > 0) {
+                m.otherIncomes.forEach(inc => {
+                    checkPageBreak(5);
+                    const isBpcBolsaInc = inc.benefitType === 'BPC' || inc.benefitType === 'Bolsa Família';
+                    const valInc = unmaskCurrency(inc.incomeValue || '0');
+                    const rendaStrInc = isBpcBolsaInc ? inc.benefitType : (valInc > 0 ? formatCurrency(valInc) : 'R$ 0,00');
+                    
+                    doc.text(String(isBpcBolsaInc ? 'Benefício' : (inc.incomeSource || '-')).substring(0, 15), colX[4], y);
+                    if (isBpcBolsaInc) doc.setTextColor(120);
+                    doc.text(rendaStrInc, colX[5], y);
+                    doc.setTextColor(0);
+                    y += 5;
+                });
             }
             // Add a small spacer after the person's block to visually detach them from the next family member
             y += 2;

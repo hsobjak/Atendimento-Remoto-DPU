@@ -90,8 +90,12 @@ export const AssessmentProvider = ({ children }) => {
                     if (curr.benefitType !== 'BPC' && curr.benefitType !== 'Bolsa Família') {
                         memberTotal += unmaskCurrency(curr.incomeValue);
                     }
-                    if (curr.hasSecondIncome && curr.benefitType2 !== 'BPC' && curr.benefitType2 !== 'Bolsa Família') {
-                        memberTotal += unmaskCurrency(curr.incomeValue2 || '0');
+                    if (curr.otherIncomes && curr.otherIncomes.length > 0) {
+                        curr.otherIncomes.forEach(inc => {
+                            if (inc.benefitType !== 'BPC' && inc.benefitType !== 'Bolsa Família') {
+                                memberTotal += unmaskCurrency(inc.incomeValue || '0');
+                            }
+                        });
                     }
                     return acc + memberTotal;
                 }, 0);

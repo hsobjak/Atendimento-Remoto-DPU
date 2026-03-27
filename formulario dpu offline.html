@@ -221,19 +221,12 @@
                 </select>
                 <input type="number" id="fm_val" placeholder="R$ Principal">
             </div>
-            <div class="grid-4" style="margin-top:10px; padding-top:10px; border-top:1px dashed #ccc; align-items:center;">
-                <div style="font-size:0.85rem; color:#666; font-weight:bold;">+ 2ª Fonte (opcional):</div>
-                <select id="fm_type2">
-                    <option value="Sem Renda">Sem Renda</option>
-                    <option value="Formal">Trabalho Formal (CLT)</option>
-                    <option value="Informal">Informal / Autônomo</option>
-                    <option value="Aposentadoria">Aposentadoria / Pensão</option>
-                    <option value="BPC">BPC (Não contabiliza)</option>
-                    <option value="Bolsa">Bolsa Família (Não contabiliza)</option>
-                    <option value="Outros">Outros</option>
-                </select>
-                <input type="number" id="fm_val2" placeholder="R$ Secundária">
-                <button class="btn btn-add" style="margin-top:0;" onclick="addM()">+ Adicionar Membro</button>
+            
+            <div id="extraIncomesContainer"></div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px; grid-column: 1 / -1;">
+                <button class="btn-remove" style="border:none; background:none; color:#004d40; font-weight:bold; text-decoration:underline; font-size:0.9rem; padding:0; flex:1; text-align:left;" onclick="addExtraIncomeField()">+ Outras fontes de renda</button>
+                <button class="btn btn-add" style="margin-top:0; flex:2;" onclick="addM()">+ Adicionar Membro</button>
             </div>
     </div>
 
@@ -374,17 +367,54 @@
         updateUI();
     }
 
+    let extraIncomesCount = 0;
+    function addExtraIncomeField() {
+        extraIncomesCount++;
+        const div = document.createElement('div');
+        div.className = "grid-4 extra-income-row";
+        div.style = "margin-top:10px; padding-top:10px; border-top:1px dashed #ccc; align-items:center;";
+        div.innerHTML = `
+            <div style="font-size:0.85rem; color:#666; font-weight:bold;">${extraIncomesCount + 1}ª Fonte:</div>
+            <select class="fm_type_extra">
+                <option value="Sem Renda">Sem Renda</option>
+                <option value="Formal">Trabalho Formal (CLT)</option>
+                <option value="Informal">Informal / Autônomo</option>
+                <option value="Aposentadoria">Aposentadoria / Pensão</option>
+                <option value="BPC">BPC (Não contabiliza)</option>
+                <option value="Bolsa">Bolsa Família (Não contabiliza)</option>
+                <option value="Outros">Outros</option>
+            </select>
+            <input type="number" class="fm_val_extra" placeholder="R$ Adicional">
+            <button class="btn-remove" onclick="this.parentElement.remove()">X</button>
+        `;
+        document.getElementById('extraIncomesContainer').appendChild(div);
+    }
+
     function addM(){
         const name = document.getElementById('fm_name').value;
         const kin = document.getElementById('fm_kin').value;
         const type = document.getElementById('fm_type').value;
         const val = parseFloat(document.getElementById('fm_val').value) || 0;
-        const type2 = document.getElementById('fm_type2').value;
-        const val2 = parseFloat(document.getElementById('fm_val2').value) || 0;
+        
+        const otherIncomes = [];
+        const extraTypes = document.querySelectorAll('.fm_type_extra');
+        const extraVals = document.querySelectorAll('.fm_val_extra');
+        
+        for(let i=0; i<extraTypes.length; i++) {
+            const t = extraTypes[i].value;
+            const v = parseFloat(extraVals[i].value) || 0;
+            if(t !== 'Sem Renda' && v > 0) {
+                 otherIncomes.push({ type: t, val: v });
+            }
+        }
+
         if(!name) return;
-        fam.push({name, kin, type, val, type2, val2});
+        fam.push({name, kin, type, val, otherIncomes});
         updateUI();
-        document.getElementById('fm_name').value = ''; document.getElementById('fm_val').value = ''; document.getElementById('fm_val2').value = '';
+        document.getElementById('fm_name').value = ''; 
+        document.getElementById('fm_val').value = '';
+        document.getElementById('extraIncomesContainer').innerHTML = '';
+        extraIncomesCount = 0;
     }
 
     function addD(){
@@ -409,18 +439,21 @@
         let grossIncome = 0;
         fam.forEach((m, i) => {
             const isExcl = (m.type === 'BPC' || m.type === 'Bolsa');
-            const isExcl2 = (m.type2 === 'BPC' || m.type2 === 'Bolsa');
-            
             if(!isExcl) grossIncome += m.val;
-            if(!isExcl2 && (m.val2 > 0)) grossIncome += m.val2;
 
-            const r1 = `${m.type}`;
-            const r2 = m.val2 > 0 ? `<br><small style="color:#666;">+ ${m.type2}</small>` : '';
-            
-            const v1 = `${isExcl ? '<small>(Excluído)</small>' : fmt(m.val)}`;
-            const v2 = m.val2 > 0 ? `<br>${isExcl2 ? '<small>(Excluído)</small>' : `<small>${fmt(m.val2)}</small>`}` : '';
+            let rText = `${m.type}`;
+            let vText = `${isExcl ? '<small>(Excluído)</small>' : fmt(m.val)}`;
 
-            tb.innerHTML += `<tr><td>${m.name}</td><td>${m.kin}</td><td>${r1}${r2}</td><td>${v1}${v2}</td><td class="no-print"><button class="btn-remove" onclick="removeM(${i})">X</button></td></tr>`;
+            if (m.otherIncomes) {
+                m.otherIncomes.forEach(inc => {
+                    const excInc = (inc.type === 'BPC' || inc.type === 'Bolsa');
+                    if (!excInc) grossIncome += inc.val;
+                    rText += `<br><small style="color:#666;">+ ${inc.type}</small>`;
+                    vText += `<br>${excInc ? '<small>(Excluído)</small>' : `<small>${fmt(inc.val)}</small>`}`;
+                })
+            }
+
+            tb.innerHTML += `<tr><td>${m.name}</td><td>${m.kin}</td><td>${rText}</td><td>${vText}</td><td class="no-print"><button class="btn-remove" onclick="removeM(${i})">X</button></td></tr>`;
         });
 
         const dedB = document.getElementById('dedList'); dedB.innerHTML = '';
