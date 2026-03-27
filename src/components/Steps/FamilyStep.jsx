@@ -30,7 +30,8 @@ const FamilyStep = () => {
             setEditIndex(reqIdx);
             setNewMember({
                 ...members[reqIdx],
-                incomeValue: maskCurrency(members[reqIdx].incomeValue)
+                incomeValue: maskCurrency(members[reqIdx].incomeValue),
+                otherIncomes: members[reqIdx].otherIncomes || []
             });
         }
     }, []); // Run only once on mount
@@ -220,7 +221,7 @@ const FamilyStep = () => {
                 </button>
             </div>
 
-            {newMember.otherIncomes.map((inc, idx) => (
+            {(newMember.otherIncomes || []).map((inc, idx) => (
                 <div key={inc.id} style={{ background: '#f5f5f5', padding: '16px', borderRadius: '6px', marginBottom: '20px', borderLeft: '4px solid #004d40', position: 'relative' }}>
                     <button 
                         onClick={() => removeOtherIncome(inc.id)}
