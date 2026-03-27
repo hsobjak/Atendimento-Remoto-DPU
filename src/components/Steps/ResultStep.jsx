@@ -65,6 +65,58 @@ const ResultStep = () => {
                 )}
             </div>
 
+            {/* Quadro do Artigo 2º */}
+            {result.metCriteria && (
+                <div style={{
+                    margin: '20px auto',
+                    maxWidth: '800px',
+                    textAlign: 'left',
+                    background: '#fff',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                    border: '1px solid #e0e0e0'
+                }}>
+                    <h3 style={{ fontSize: '1.2rem', color: '#333', marginBottom: '10px', borderBottom: '2px solid #eee', paddingBottom: '8px' }}>
+                        Enquadramento - Art. 2º da Resolução CSDPU nº 240/2025
+                    </h3>
+                    
+                    <p style={{ fontSize: '0.95rem', color: '#555', marginBottom: '16px' }}>
+                        {result.metCriteriaList && result.metCriteriaList.length > 0 
+                            ? `Foram considerados atendidos os incisos: ${result.metCriteriaList.join(', ')}.`
+                            : `Nenhum dos incisos foi atingido.`
+                        }
+                    </p>
+
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: '#f5f5f5', borderBottom: '2px solid #ddd' }}>
+                                    <th style={{ padding: '12px', textAlign: 'left', width: '70%' }}>Critérios do Art. 2º</th>
+                                    <th style={{ padding: '12px', textAlign: 'center', width: '30%' }}>Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {[
+                                    { id: 'I', text: `Inciso I - Renda familiar total até ${data.demand?.type === 'Cível - Saúde (Medicamentos/Tratamento)' ? '5' : '2'} salário(s)-mínimo(s)` },
+                                    { id: 'II', text: `Inciso II - Renda per capita até ${data.demand?.type === 'Cível - Saúde (Medicamentos/Tratamento)' ? '1' : '1/2'} salário-mínimo` },
+                                    { id: 'III', text: "Inciso III - Requerente titular do Bolsa Família" },
+                                    { id: 'IV', text: "Inciso IV - Requerente titular do BPC/LOAS" },
+                                    { id: 'V', text: "Inciso V - Requerente idoso(a) com renda previdenciária de até 1 SM" }
+                                ].map(cr => (
+                                    <tr key={cr.id} style={{ borderBottom: '1px solid #eee' }}>
+                                        <td style={{ padding: '12px', color: '#444' }}>{cr.text}</td>
+                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: result.metCriteria[cr.id] ? '#2e7d32' : '#c62828' }}>
+                                            {result.metCriteria[cr.id] ? 'Atende aos Critérios' : 'Não atende aos Critérios'}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
             <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
                 <button className="btn-secondary" onClick={() => navigate('/step/3')} style={{ borderColor: '#666', color: '#666' }}>
                     Voltar e Editar
