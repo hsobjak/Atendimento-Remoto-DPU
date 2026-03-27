@@ -86,8 +86,14 @@ export const AssessmentProvider = ({ children }) => {
             // BPC is excluded from the calculation per portaria
             if (section === 'family') {
                 const total = (newData.family.members || []).reduce((acc, curr) => {
-                    if (curr.benefitType === 'BPC' || curr.benefitType === 'Bolsa Família') return acc;
-                    return acc + unmaskCurrency(curr.incomeValue);
+                    let memberTotal = 0;
+                    if (curr.benefitType !== 'BPC' && curr.benefitType !== 'Bolsa Família') {
+                        memberTotal += unmaskCurrency(curr.incomeValue);
+                    }
+                    if (curr.hasSecondIncome && curr.benefitType2 !== 'BPC' && curr.benefitType2 !== 'Bolsa Família') {
+                        memberTotal += unmaskCurrency(curr.incomeValue2 || '0');
+                    }
+                    return acc + memberTotal;
                 }, 0);
                 newData.totalFamilyIncome = total;
             }

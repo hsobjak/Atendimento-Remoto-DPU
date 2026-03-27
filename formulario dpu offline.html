@@ -217,11 +217,24 @@
                     <option value="Aposentadoria">Aposentadoria / Pensão</option>
                     <option value="BPC">BPC (Não contabiliza)</option>
                     <option value="Bolsa">Bolsa Família (Não contabiliza)</option>
+                    <option value="Outros">Outros</option>
                 </select>
-                <input type="number" id="fm_val" placeholder="0.00">
+                <input type="number" id="fm_val" placeholder="R$ Principal">
             </div>
-            <button class="btn btn-add" onclick="addM()">+ Adicionar Membro</button>
-        </div>
+            <div class="grid-4" style="margin-top:10px; padding-top:10px; border-top:1px dashed #ccc; align-items:center;">
+                <div style="font-size:0.85rem; color:#666; font-weight:bold;">+ 2ª Fonte (opcional):</div>
+                <select id="fm_type2">
+                    <option value="Sem Renda">Sem Renda</option>
+                    <option value="Formal">Trabalho Formal (CLT)</option>
+                    <option value="Informal">Informal / Autônomo</option>
+                    <option value="Aposentadoria">Aposentadoria / Pensão</option>
+                    <option value="BPC">BPC (Não contabiliza)</option>
+                    <option value="Bolsa">Bolsa Família (Não contabiliza)</option>
+                    <option value="Outros">Outros</option>
+                </select>
+                <input type="number" id="fm_val2" placeholder="R$ Secundária">
+                <button class="btn btn-add" style="margin-top:0;" onclick="addM()">+ Adicionar Membro</button>
+            </div>
     </div>
 
     <!-- 4. ANÁLISE FINANCEIRA E DEDUÇÕES -->
@@ -366,10 +379,12 @@
         const kin = document.getElementById('fm_kin').value;
         const type = document.getElementById('fm_type').value;
         const val = parseFloat(document.getElementById('fm_val').value) || 0;
+        const type2 = document.getElementById('fm_type2').value;
+        const val2 = parseFloat(document.getElementById('fm_val2').value) || 0;
         if(!name) return;
-        fam.push({name, kin, type, val});
+        fam.push({name, kin, type, val, type2, val2});
         updateUI();
-        document.getElementById('fm_name').value = ''; document.getElementById('fm_val').value = '';
+        document.getElementById('fm_name').value = ''; document.getElementById('fm_val').value = ''; document.getElementById('fm_val2').value = '';
     }
 
     function addD(){
@@ -394,8 +409,18 @@
         let grossIncome = 0;
         fam.forEach((m, i) => {
             const isExcl = (m.type === 'BPC' || m.type === 'Bolsa');
+            const isExcl2 = (m.type2 === 'BPC' || m.type2 === 'Bolsa');
+            
             if(!isExcl) grossIncome += m.val;
-            tb.innerHTML += `<tr><td>${m.name}</td><td>${m.kin}</td><td>${m.type}</td><td>${isExcl ? '<small>(Excluído)</small>' : fmt(m.val)}</td><td class="no-print"><button class="btn-remove" onclick="removeM(${i})">X</button></td></tr>`;
+            if(!isExcl2 && (m.val2 > 0)) grossIncome += m.val2;
+
+            const r1 = `${m.type}`;
+            const r2 = m.val2 > 0 ? `<br><small style="color:#666;">+ ${m.type2}</small>` : '';
+            
+            const v1 = `${isExcl ? '<small>(Excluído)</small>' : fmt(m.val)}`;
+            const v2 = m.val2 > 0 ? `<br>${isExcl2 ? '<small>(Excluído)</small>' : `<small>${fmt(m.val2)}</small>`}` : '';
+
+            tb.innerHTML += `<tr><td>${m.name}</td><td>${m.kin}</td><td>${r1}${r2}</td><td>${v1}${v2}</td><td class="no-print"><button class="btn-remove" onclick="removeM(${i})">X</button></td></tr>`;
         });
 
         const dedB = document.getElementById('dedList'); dedB.innerHTML = '';
