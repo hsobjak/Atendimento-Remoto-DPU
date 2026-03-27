@@ -169,12 +169,22 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         
         doc.setFont("helvetica", "normal");
         const isSaude = data.demand?.type === TIPOS_DEMANDA.CIVEL_SAUDE;
+        const netIncome = calculateNetIncome(data);
+        const membersCount = data.family?.members?.length || 1;
+        const perCapita = netIncome / membersCount;
+
+        const limitFamily = isSaude ? LIMITES.RENDA_SAUDE_TOTAL : LIMITES.RENDA_FAMILIAR_GERAL;
+        const limitPerCapita = isSaude ? LIMITES.RENDA_SAUDE_PER_CAPITA : LIMITES.RENDA_PER_CAPITA_GERAL;
+
+        const famSign = netIncome <= limitFamily ? '<=' : '>';
+        const perSign = perCapita <= limitPerCapita ? '<=' : '>';
+
         const criteriaTexts = {
-            I: `Inciso I - Renda familiar total até ${isSaude ? '5' : '2'} salário(s)-mínimo(s)`,
-            II: `Inciso II - Renda per capita até ${isSaude ? '1' : '1/2'} salário-mínimo`,
+            I: `Inciso I - Renda familiar até ${isSaude ? '5' : '2'} salário(s)-mínimo(s) (${formatCurrency(netIncome)} ${famSign} ${formatCurrency(limitFamily)})`,
+            II: `Inciso II - Renda per capita até ${isSaude ? '1' : '1/2'} salário-mínimo (${formatCurrency(perCapita)} ${perSign} ${formatCurrency(limitPerCapita)})`,
             III: "Inciso III - Requerente titular do Bolsa Família",
             IV: "Inciso IV - Requerente titular do BPC/LOAS",
-            V: "Inciso V - Requerente idoso(a) com renda previdenciária de até 1 SM"
+            V: "Inciso V - Requerente com renda previdenciária de até 1 SM"
         };
         
         Object.keys(criteriaTexts).forEach(key => {

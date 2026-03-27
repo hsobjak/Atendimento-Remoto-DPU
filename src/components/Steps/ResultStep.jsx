@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useAssessment } from '../../context/AssessmentContext';
-import { checkEligibility } from '../../utils/businessRules';
+import { checkEligibility, calculateNetIncome, formatCurrency } from '../../utils/businessRules';
+import { TIPOS_DEMANDA, LIMITES } from '../../utils/constants';
 import { generatePDF } from '../../utils/pdfGenerator';
 import { CheckCircle, XCircle, AlertTriangle, FileText, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,17 @@ const ResultStep = () => {
 
     // Safety check if accessed directly without data
     const result = useMemo(() => checkEligibility(data), [data]);
+
+    const isSaude = data.demand?.type === TIPOS_DEMANDA.CIVEL_SAUDE;
+    const netIncome = calculateNetIncome(data);
+    const membersCount = data.family?.members?.length || 1;
+    const perCapita = netIncome / membersCount;
+
+    const limitFamily = isSaude ? LIMITES.RENDA_SAUDE_TOTAL : LIMITES.RENDA_FAMILIAR_GERAL;
+    const limitPerCapita = isSaude ? LIMITES.RENDA_SAUDE_PER_CAPITA : LIMITES.RENDA_PER_CAPITA_GERAL;
+
+    const famSign = netIncome <= limitFamily ? '<=' : '>';
+    const perSign = perCapita <= limitPerCapita ? '<=' : '>';
 
     const handleRestart = () => {
         if (confirm('Deseja iniciar um novo atendimento? Todos os dados atuais serão perdidos.')) {
@@ -98,11 +110,11 @@ const ResultStep = () => {
                             </thead>
                             <tbody>
                                 {[
-                                    { id: 'I', text: `Inciso I - Renda familiar total até ${data.demand?.type === 'Cível - Saúde (Medicamentos/Tratamento)' ? '5' : '2'} salário(s)-mínimo(s)` },
-                                    { id: 'II', text: `Inciso II - Renda per capita até ${data.demand?.type === 'Cível - Saúde (Medicamentos/Tratamento)' ? '1' : '1/2'} salário-mínimo` },
+                                    { id: 'I', text: `Inciso I - Renda familiar até ${isSaude ? '5' : '2'} salário(s)-mínimo(s) (${formatCurrency(netIncome)} ${famSign} ${formatCurrency(limitFamily)})` },
+                                    { id: 'II', text: `Inciso II - Renda per capita até ${isSaude ? '1' : '1/2'} salário-mínimo (${formatCurrency(perCapita)} ${perSign} ${formatCurrency(limitPerCapita)})` },
                                     { id: 'III', text: "Inciso III - Requerente titular do Bolsa Família" },
                                     { id: 'IV', text: "Inciso IV - Requerente titular do BPC/LOAS" },
-                                    { id: 'V', text: "Inciso V - Requerente idoso(a) com renda previdenciária de até 1 SM" }
+                                    { id: 'V', text: "Inciso V - Requerente com renda previdenciária de até 1 SM" }
                                 ].map(cr => (
                                     <tr key={cr.id} style={{ borderBottom: '1px solid #eee' }}>
                                         <td style={{ padding: '12px', color: '#444' }}>{cr.text}</td>
