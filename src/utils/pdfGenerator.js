@@ -138,6 +138,64 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         y += splitAlerts.length * 5 + 4;
     }
 
+    if (result.metCriteriaList && result.metCriteriaList.length > 0) {
+        doc.setFont("helvetica", "normal");
+        const metText = `Foram considerados atendidos os incisos: ${result.metCriteriaList.join(', ')} do Art. 2º da Resolução CSDPU nº 240/2025.`;
+        const splitMet = doc.splitTextToSize(metText, pageWidth - 2 * margin);
+        doc.text(splitMet, margin, y);
+        y += splitMet.length * 5 + 4;
+    } else if (result.metCriteria) {
+        doc.setFont("helvetica", "normal");
+        const metText = `Nenhum dos incisos do Art. 2º da Resolução CSDPU nº 240/2025 foi atingido.`;
+        const splitMet = doc.splitTextToSize(metText, pageWidth - 2 * margin);
+        doc.text(splitMet, margin, y);
+        y += splitMet.length * 5 + 4;
+    }
+
+    if (result.metCriteria) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, y, pageWidth - 2 * margin, 5 * 6 + 8, 'F');
+        
+        let ty = y + 5;
+        doc.text("Critérios do Art. 2º", margin + 2, ty);
+        doc.text("Situação", pageWidth - margin - 35, ty);
+        ty += 6;
+        
+        doc.setFont("helvetica", "normal");
+        const isSaude = data.demand?.type === TIPOS_DEMANDA.CIVEL_SAUDE;
+        const criteriaTexts = {
+            I: `Inciso I - Renda familiar total até ${isSaude ? '5' : '2'} salário(s)-mínimo(s)`,
+            II: `Inciso II - Renda per capita até ${isSaude ? '1' : '1/2'} salário-mínimo`,
+            III: "Inciso III - Requerente titular do Bolsa Família",
+            IV: "Inciso IV - Requerente titular do BPC/LOAS",
+            V: "Inciso V - Requerente idoso(a) com renda previdenciária de até 1 SM"
+        };
+        
+        Object.keys(criteriaTexts).forEach(key => {
+            const criteriaText = criteriaTexts[key];
+            const isMet = result.metCriteria[key];
+            
+            doc.text(criteriaText, margin + 2, ty);
+            
+            doc.setFont("helvetica", "bold");
+            if (isMet) {
+                doc.setTextColor(46, 125, 50);
+                doc.text("Atende aos Critérios", pageWidth - margin - 40, ty);
+            } else {
+                doc.setTextColor(198, 40, 40);
+                doc.text("Não atende aos Critérios", pageWidth - margin - 45, ty);
+            }
+            doc.setTextColor(0);
+            doc.setFont("helvetica", "normal");
+            ty += 6;
+        });
+
+        y = ty + 4;
+        doc.setFontSize(11);
+    }
+
     sectionTitle('1. Dados do Assistido');
     row('Nome', data.personal?.name);
     row('CPF', data.personal?.cpf);

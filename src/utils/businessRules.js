@@ -53,6 +53,25 @@ export const checkEligibility = (data) => {
         appliedArticles.push('Art. 3º (Critério Saúde)');
     }
 
+    const requerente = family.members.find(m => m.kinship === 'Requerente (Próprio)');
+    const isElderly = requerente ? (data.personal?.priorities?.elderly || (parseInt(requerente.age) >= 60)) : false;
+    const reqIncomeVal = requerente ? unmaskCurrency(requerente.incomeValue) : 0;
+
+    const metCriteria = {
+        I: netIncome <= limitTotal,
+        II: perCapita <= limitPerCapita,
+        III: requerente?.benefitType === 'Bolsa Família' || false,
+        IV: requerente?.benefitType === 'BPC' || false,
+        V: isElderly && requerente?.incomeSource === 'Aposentadoria' && reqIncomeVal <= SALARIO_MINIMO
+    };
+
+    const metCriteriaList = [];
+    if (metCriteria.I) metCriteriaList.push('I');
+    if (metCriteria.II) metCriteriaList.push('II');
+    if (metCriteria.III) metCriteriaList.push('III');
+    if (metCriteria.IV) metCriteriaList.push('IV');
+    if (metCriteria.V) metCriteriaList.push('V');
+
     // 2. High Value Assets
     // We need to check the dropdowns from Step 3
     if (financial.assets.realEstate.includes('extra') || financial.assets.vehicle.includes('luxo')) {
@@ -62,57 +81,54 @@ export const checkEligibility = (data) => {
             message: 'Enquadra-se mediante análise do/a Defensor/a',
             justification: 'Indício de patrimônio incompatível ou vultoso declarado.',
             appliedArticles,
-            alerts: ['Verificar compatibilidade do patrimônio com a hipossuficiência.']
+            alerts: ['Verificar compatibilidade do patrimônio com a hipossuficiência.'],
+            metCriteria, metCriteriaList
         };
     }
 
     // 3. Presunção Automática do Requerente (Art. 2º, Incisos III, IV e V)
-    const requerente = family.members.find(m => m.kinship === 'Requerente (Próprio)');
     if (requerente) {
-        if (requerente.benefitType === 'Bolsa Família') {
+        if (metCriteria.III) {
             appliedArticles.push('Art. 2º, III (Bolsa Família)');
             return {
                 status: 'ELIGIBLE_AUTOMATIC',
                 message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
                 justification: 'Requerente titular do Programa Bolsa Família.',
                 appliedArticles,
-                alerts
+                alerts, metCriteria, metCriteriaList
             };
         }
-        if (requerente.benefitType === 'BPC') {
+        if (metCriteria.IV) {
             appliedArticles.push('Art. 2º, IV (BPC/LOAS)');
             return {
                 status: 'ELIGIBLE_AUTOMATIC',
                 message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
                 justification: 'Requerente titular do Benefício de Prestação Continuada (BPC/LOAS).',
                 appliedArticles,
-                alerts
+                alerts, metCriteria, metCriteriaList
             };
         }
-
-        const isElderly = data.personal?.priorities?.elderly || (parseInt(requerente.age) >= 60);
-        const reqIncomeVal = unmaskCurrency(requerente.incomeValue);
-        if (isElderly && requerente.incomeSource === 'Aposentadoria' && reqIncomeVal <= SALARIO_MINIMO) {
+        if (metCriteria.V) {
             appliedArticles.push('Art. 2º, V (Idoso / Previdenciário)');
             return {
                 status: 'ELIGIBLE_AUTOMATIC',
                 message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
                 justification: `Requerente idoso cuja renda provém de benefício previdenciário de até 1 salário-mínimo.`,
                 appliedArticles,
-                alerts
+                alerts, metCriteria, metCriteriaList
             };
         }
     }
 
     // 4. Quantitative
-    if (netIncome <= limitTotal || perCapita <= limitPerCapita) {
+    if (metCriteria.I || metCriteria.II) {
         appliedArticles.push('Art. 2º (Critério de Renda)');
         return {
             status: 'ELIGIBLE_AUTOMATIC',
             message: 'Enquadra-se nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
             justification: `Renda familiar (${formatCurrency(netIncome)}) ou per capita (${formatCurrency(perCapita)}) dentro dos limites.`,
             appliedArticles,
-            alerts
+            alerts, metCriteria, metCriteriaList
         };
     }
 
@@ -125,6 +141,6 @@ export const checkEligibility = (data) => {
         message: 'Não se enquadra nos critérios objetivos, conforme Resolução CSDPU nº 240/2025',
         justification: `Renda superior aos limites objetivos (Total: ${formatCurrency(netIncome)} > ${formatCurrency(limitTotal)}).`,
         appliedArticles,
-        alerts
+        alerts, metCriteria, metCriteriaList
     };
 };
