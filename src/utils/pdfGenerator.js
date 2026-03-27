@@ -119,15 +119,16 @@ export const generatePDF = async (data, result, mode = 'objective') => {
     doc.text(splitMessage, margin, y);
     y += splitMessage.length * 5;
     doc.setTextColor(0);
-    doc.setFontSize(11);
+    doc.setFontSize(9.5);
     doc.setFont("helvetica", "normal");
-    y += 6;
+    y += 5;
 
     const splitJust = doc.splitTextToSize(`Justificativa: ${result.justification} `, pageWidth - 2 * margin);
     doc.text(splitJust, margin, y);
-    y += splitJust.length * 5 + 2;
+    y += splitJust.length * 4.5;
 
     if (result.alerts?.length > 0) {
+        y += 2;
         doc.setTextColor(198, 40, 40);
         doc.setFont("helvetica", "bold");
         const alertsText = result.alerts.join(' | ');
@@ -135,33 +136,36 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         doc.text(splitAlerts, margin, y);
         doc.setTextColor(0);
         doc.setFont("helvetica", "normal");
-        y += splitAlerts.length * 5 + 4;
+        y += splitAlerts.length * 4.5 + 2;
     }
 
     if (result.metCriteriaList && result.metCriteriaList.length > 0) {
         doc.setFont("helvetica", "normal");
         const metText = `Foram considerados atendidos os incisos: ${result.metCriteriaList.join(', ')} do Art. 2º da Resolução CSDPU nº 240/2025.`;
         const splitMet = doc.splitTextToSize(metText, pageWidth - 2 * margin);
+        y += 2;
         doc.text(splitMet, margin, y);
-        y += splitMet.length * 5 + 4;
+        y += splitMet.length * 4.5 + 4;
     } else if (result.metCriteria) {
         doc.setFont("helvetica", "normal");
         const metText = `Nenhum dos incisos do Art. 2º da Resolução CSDPU nº 240/2025 foi atingido.`;
         const splitMet = doc.splitTextToSize(metText, pageWidth - 2 * margin);
+        y += 2;
         doc.text(splitMet, margin, y);
-        y += splitMet.length * 5 + 4;
+        y += splitMet.length * 4.5 + 4;
     }
 
     if (result.metCriteria) {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
+        doc.setFontSize(8);
+        const tableWidth = 150;
         doc.setFillColor(245, 245, 245);
-        doc.rect(margin, y, pageWidth - 2 * margin, 5 * 6 + 8, 'F');
+        doc.rect(margin, y, tableWidth, 5 * 5 + 7, 'F');
         
-        let ty = y + 5;
+        let ty = y + 4.5;
         doc.text("Critérios do Art. 2º", margin + 2, ty);
-        doc.text("Situação", pageWidth - margin - 35, ty);
-        ty += 6;
+        doc.text("Situação", margin + tableWidth - 30, ty);
+        ty += 5.5;
         
         doc.setFont("helvetica", "normal");
         const isSaude = data.demand?.type === TIPOS_DEMANDA.CIVEL_SAUDE;
@@ -182,14 +186,14 @@ export const generatePDF = async (data, result, mode = 'objective') => {
             doc.setFont("helvetica", "bold");
             if (isMet) {
                 doc.setTextColor(46, 125, 50);
-                doc.text("Atende aos Critérios", pageWidth - margin - 40, ty);
+                doc.text("Atende aos Critérios", margin + tableWidth - 35, ty);
             } else {
                 doc.setTextColor(198, 40, 40);
-                doc.text("Não atende aos Critérios", pageWidth - margin - 45, ty);
+                doc.text("Não atende aos Critérios", margin + tableWidth - 38.5, ty);
             }
             doc.setTextColor(0);
             doc.setFont("helvetica", "normal");
-            ty += 6;
+            ty += 5;
         });
 
         y = ty + 4;
