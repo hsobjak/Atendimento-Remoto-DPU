@@ -70,7 +70,8 @@ export const checkEligibility = (data) => {
     if (metCriteria.V) metCriteriaList.push('V');
 
     if (financial?.deductionItems?.length > 0) {
-        alerts.push('Foram declaradas despesas dedutíveis que devem ser avaliadas pelo/a Defensor/a.');
+        const deducoesTotal = financial.deductionItems.reduce((acc, curr) => acc + unmaskCurrency(curr.value), 0);
+        alerts.push(`Foram declaradas despesas dedutíveis (${formatCurrency(deducoesTotal)}) que devem ser avaliadas pelo/a Defensor/a.`);
     }
 
     // 2. High Value Assets
