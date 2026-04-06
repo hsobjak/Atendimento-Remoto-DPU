@@ -183,12 +183,12 @@ const FinancialStep = () => {
                 </div>
             </div>
 
-            {/* ── Deduções Extras ── */}
+            {/* ── Despesas Dedutíveis Declaradas ── */}
             <h3 style={{ fontSize: '1rem', color: '#444', marginTop: '28px', marginBottom: '8px' }}>
-                Deduções Extras (Não-Automáticas)
+                Despesas dedutíveis declaradas
             </h3>
             <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '14px' }}>
-                * BPC e Bolsa Família são excluídos automaticamente da renda. Informe aqui gastos extraordinários dedutíveis (tratamentos, pensão alimentícia, etc).
+                * BPC e Bolsa Família já são excluídos automaticamente da renda. Informe aqui gastos extraordinários para análise do Defensor (estes valores constarão no relatório, mas não abatem a renda familiar do simulador automaticamente).
             </p>
 
             {/* Lista de deduções */}
@@ -220,7 +220,7 @@ const FinancialStep = () => {
                         </tbody>
                         <tfoot>
                             <tr style={{ background: '#f5f5f5', fontWeight: 'bold' }}>
-                                <td style={{ padding: '8px 12px' }}>Total de Deduções</td>
+                                <td style={{ padding: '8px 12px' }}>Total Informado</td>
                                 <td style={{ padding: '8px 12px' }} colSpan={2}>{formatCurrency(totalDeductions)}</td>
                             </tr>
                         </tfoot>
@@ -236,7 +236,7 @@ const FinancialStep = () => {
                 border: '1px dashed #ccc'
             }}>
                 <p style={{ fontSize: '0.82rem', color: '#666', marginBottom: '10px', fontWeight: 600 }}>
-                    + Adicionar dedução
+                    + Adicionar despesa extraordinária
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px auto', gap: '10px', alignItems: 'flex-end' }}>
                     <div>

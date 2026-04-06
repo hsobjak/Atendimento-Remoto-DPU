@@ -13,12 +13,9 @@ export const calculateNetIncome = (data) => {
     // data.totalFamilyIncome is already a number (calculated in AssessmentContext)
     const gross = data.totalFamilyIncome || 0;
 
-    // Sum all deduction items (described individually for the report)
-    const deductions = (data.financial?.deductionItems || []).reduce(
-        (acc, item) => acc + unmaskCurrency(item.value), 0
-    );
-
-    return Math.max(0, gross - deductions);
+    // As per new rules, extraordinary expenses are no longer deducted mathematically from the total family income,
+    // they are merely presented for the defender's analysis.
+    return Math.max(0, gross);
 };
 
 export const checkEligibility = (data) => {

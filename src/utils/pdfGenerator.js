@@ -344,7 +344,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
     if (deductions.length > 0) {
         y += 8;
-        sectionTitle('Gastos Extraordinários (Deduções)');
+        sectionTitle(isComplete ? '5. Despesas dedutíveis declaradas' : 'Despesas dedutíveis declaradas');
         doc.setTextColor(198, 40, 40); // Red
         doc.setFont("helvetica", "bold");
 
@@ -363,7 +363,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
     if (isComplete) {
         y += 8;
-        sectionTitle('5. Patrimônio e Investimentos');
+        sectionTitle('6. Patrimônio e Investimentos');
         const assets = data.financial?.assets || {};
         const assetLabels = {
             nao: 'Não possui',
@@ -394,7 +394,7 @@ export const generatePDF = async (data, result, mode = 'objective') => {
 
     checkPageBreak(40);
     y += 10;
-    sectionTitle(isComplete ? '5. Declarações Finais' : 'Declarações Finais');
+    sectionTitle(isComplete ? '7. Declarações Finais' : 'Declarações Finais');
     doc.setFontSize(10);
     const truthSelected = data.demand?.declarations?.truthfulness ? 'X' : ' ';
     const hypoSelected = data.demand?.declarations?.hyposufficiency ? 'X' : ' ';
