@@ -69,6 +69,10 @@ export const checkEligibility = (data) => {
     if (metCriteria.IV) metCriteriaList.push('IV');
     if (metCriteria.V) metCriteriaList.push('V');
 
+    if (financial?.deductionItems?.length > 0) {
+        alerts.push('Foram declaradas despesas dedutíveis que devem ser avaliadas pelo/a Defensor/a.');
+    }
+
     // 2. High Value Assets
     // We need to check the dropdowns from Step 3
     if (financial.assets.realEstate.includes('extra') || financial.assets.vehicle.includes('luxo')) {
@@ -129,9 +133,7 @@ export const checkEligibility = (data) => {
         };
     }
 
-    if (financial?.deductionItems?.length > 0) {
-        alerts.push('Foram declarados gastos extraordinários que devem ser avaliados pelo/a Defensor/a.');
-    }
+
 
     return {
         status: 'NOT_ELIGIBLE',
