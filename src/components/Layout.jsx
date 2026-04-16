@@ -19,8 +19,8 @@ const Layout = ({ children }) => {
                             Formulário Socioeconômico
                         </span>
                     </div>
-                    <div>
-                        <a href="/admin" className="btn-secondary" style={{ padding: '6px 16px', fontSize: '0.85rem', color: '#004d40', border: '2px solid #004d40', borderRadius: '4px', textDecoration: 'none', fontWeight: 'bold' }}>
+                    <div style={{ flexShrink: 0, marginLeft: '16px' }}>
+                        <a href="/admin" style={{ padding: '10px 20px', background: '#003B28', color: '#FFF', border: 'none', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', whiteSpace: 'nowrap', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'inline-block' }}>
                             Área do Administrador
                         </a>
                     </div>
