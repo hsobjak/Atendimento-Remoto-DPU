@@ -8,14 +8,14 @@ const Layout = ({ children }) => {
     return (
         <div className="app-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <header style={{ background: '#FFFFFF', borderBottom: '1px solid #e1e4e8', padding: '16px 0', borderTop: '4px solid #003B28' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <img src="/logo_dpu_header.png" alt="DPU Logo" style={{ height: '55px' }} />
-                        <div>
-                            <h1 style={{ fontSize: '1.4rem', color: '#003B28', margin: 0, fontWeight: 700, lineHeight: 1.1 }}>Defensoria Pública da União</h1>
-                            <p style={{ fontSize: '0.85rem', color: '#666', margin: 0 }}>Garantia de Assistência Jurídica Integral e Gratuita</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 32px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 1, minWidth: 0 }}>
+                        <img src="/logo_dpu_header.png" alt="DPU Logo" style={{ height: '55px', flexShrink: 0 }} />
+                        <div style={{ flexShrink: 0 }}>
+                            <h1 style={{ fontSize: '1.4rem', color: '#003B28', margin: 0, fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap' }}>Defensoria Pública da União</h1>
+                            <p style={{ fontSize: '0.85rem', color: '#666', margin: 0, whiteSpace: 'nowrap' }}>Garantia de Assistência Jurídica Integral e Gratuita</p>
                         </div>
-                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#003B28', borderLeft: '4px solid #D4AF37', paddingLeft: '16px', marginLeft: '16px' }}>
+                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#003B28', borderLeft: '4px solid #D4AF37', paddingLeft: '16px', marginLeft: '16px', whiteSpace: 'nowrap', flexShrink: 0 }}>
                             Formulário Socioeconômico
                         </span>
                     </div>
