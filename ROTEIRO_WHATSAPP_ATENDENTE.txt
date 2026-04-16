@@ -1,0 +1,428 @@
+===============================================================================
+  ROTEIRO DE ATENDIMENTO VIA WHATSAPP
+  Defensoria Pública da União - Formulário Socioeconômico
+  (Uso exclusivo do atendente)
+===============================================================================
+
+Este roteiro deve ser seguido pelo atendente para coletar todas as informações
+necessárias para preencher o Formulário Socioeconômico pelo assistido.
+As perguntas foram escritas em linguagem simples e acessível para qualquer perfil
+de cidadão, independente de escolaridade ou familiaridade com tecnologia.
+
+Anote as respostas e preencha o formulário com base nas informações coletadas.
+
+===============================================================================
+BLOCO 1 - IDENTIFICAÇÃO DO REQUERENTE
+===============================================================================
+
+[Enviar mensagem de abertura ao cidadão:]
+"Olá! Tudo bem? Sou atendente da Defensoria Pública da União. Para te 
+conhecermos melhor e entendermos a sua situação financeira, vou te fazer 
+algumas perguntas. Com base nas suas respostas, poderemos verificar se você 
+tem direito à nossa assistência jurídica gratuita. Pode responder com calma, 
+sem pressa, tudo bem? 😊"
+
+---
+
+PERGUNTA 1.1 — NOME COMPLETO
+"Qual é o seu nome completo, por favor?"
+(Anotar: nome completo do requerente)
+
+---
+
+PERGUNTA 1.2 — CPF
+"Qual é o número do seu CPF? 
+(São 11 números. Exemplo: 123.456.789-10)"
+(Anotar: CPF — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 1.3 — RG
+"Qual é o número do seu RG? 
+(Se não lembrar ou não tiver, pode pular essa.)"
+(Anotar: RG — campo opcional)
+
+---
+
+PERGUNTA 1.4 — IDADE
+"Quantos anos você tem?"
+(Anotar: idade em anos — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 1.5 — DATA DE NASCIMENTO
+"Qual é a sua data de nascimento? 
+(Exemplo: 15/03/1985)"
+(Anotar: data de nascimento — campo opcional)
+
+---
+
+PERGUNTA 1.6 — ESTADO CIVIL
+"Qual é o seu estado civil?
+  1 - Solteiro(a)
+  2 - Casado(a)
+  3 - Divorciado(a)
+  4 - Viúvo(a)
+  5 - União Estável (mora junto sem ser casado no papel)"
+(Anotar: estado civil)
+
+---
+
+PERGUNTA 1.7 — PROFISSÃO
+"Qual é a sua profissão ou o que você faz da vida atualmente?
+(Exemplos: pedreiro, do lar, aposentado, estudante, desempregado)
+Se não tiver uma profissão no momento, pode falar que está desempregado(a)."
+(Anotar: profissão — campo opcional)
+
+---
+
+PERGUNTA 1.8 — REPRESENTAÇÃO (atendimento para terceiro)
+"Você está buscando ajuda para você mesmo(a), ou está representando 
+outra pessoa? (Exemplo: um filho menor de idade, alguém que não pode 
+falar por si mesmo)"
+
+  SE for para si mesmo: anotar "não representado" e continuar.
+  SE for para outra pessoa:
+    "Pode me dizer o seu nome completo, já que você vai representar 
+    essa pessoa?"
+    (Anotar: nome do representante)
+
+===============================================================================
+BLOCO 2 — ENDEREÇO E CONTATOS
+===============================================================================
+
+PERGUNTA 2.1 — CEP
+"Qual é o CEP da sua casa? 
+(São 8 números. Exemplo: 70040-010)
+Se não souber o CEP, pode me dizer o nome da rua e o bairro."
+(Anotar: CEP — se souber; caso contrário, anotar rua e bairro manualmente)
+
+---
+
+PERGUNTA 2.2 — RUA
+"Qual é o nome da rua, avenida ou travessa onde você mora?"
+(Anotar: logradouro — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 2.3 — NÚMERO
+"Qual é o número da sua casa ou apartamento?
+(Se não tiver número, pode falar 'Sem número')"
+(Anotar: número — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 2.4 — BAIRRO
+"Em qual bairro você mora?"
+(Anotar: bairro — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 2.5 — COMPLEMENTO
+"Tem algum complemento no endereço? 
+(Exemplos: Apartamento 302, Casa dos fundos, Bloco B)
+Se não tiver, pode pular."
+(Anotar: complemento — campo opcional)
+
+---
+
+PERGUNTA 2.6 — TELEFONE PRINCIPAL (WhatsApp)
+"Qual é o número de celular ou telefone para contato com WhatsApp?
+(Exemplo: (61) 99999-0000)"
+(Anotar: telefone principal — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 2.7 — TELEFONE DE RECADO
+"Tem algum outro número de telefone para recado? 
+(Exemplo: telefone de um familiar)
+Se não tiver, pode pular."
+(Anotar: telefone de recado — campo opcional)
+
+---
+
+PERGUNTA 2.8 — E-MAIL
+"Você tem um e-mail? Se tiver, pode me passar.
+Se não tiver ou não usar, sem problema."
+(Anotar: e-mail — campo opcional)
+
+===============================================================================
+BLOCO 3 — CONDIÇÕES ESPECIAIS (PRIORIDADE DE ATENDIMENTO)
+===============================================================================
+
+[INSTRUÇÕES PARA O ATENDENTE]
+Estas perguntas definem se o cidadão tem prioridade legal no atendimento.
+Marque SIM ou NÃO para cada item.
+
+---
+
+PERGUNTA 3.1 — IDOSO
+"Você tem 60 anos ou mais?"
+  → SIM = marcar "Idoso(a)" no formulário
+
+---
+
+PERGUNTA 3.2 — PESSOA COM DEFICIÊNCIA
+"Você tem alguma deficiência física, intelectual, auditiva, visual ou outra?
+(Exemplo: usa cadeira de rodas, tem deficiência auditiva, síndrome de Down, etc.)"
+  → SIM = marcar "Pessoa com Deficiência (PcD)" no formulário
+
+---
+
+PERGUNTA 3.3 — DOENÇA GRAVE
+"Você tem alguma doença grave diagnosticada por médico?
+(Exemplos: câncer, HIV/AIDS, insuficiência renal, doenças raras)"
+  → SIM = marcar "Doença Grave" no formulário
+
+---
+
+PERGUNTA 3.4 — URGÊNCIA EXTREMA
+"O seu caso é de extrema urgência? 
+Por exemplo: risco de morte, risco de ser preso injustamente, alguém 
+que depende de você está em perigo?"
+  → SIM = marcar "Extrema Urgência" no formulário
+
+===============================================================================
+BLOCO 4 — COMPOSIÇÃO FAMILIAR (QUEM MORA NA MESMA CASA)
+===============================================================================
+
+[INSTRUÇÕES PARA O ATENDENTE]
+O(A) requerente já é incluído(a) automaticamente. 
+Pergunte sobre todos que MORAM NA MESMA CASA e dividem as despesas.
+
+---
+
+PERGUNTA 4.1 — APRESENTAÇÃO
+"Agora vou perguntar sobre as pessoas que moram com você na mesma casa.
+Podem ser familiares ou não — o que importa é quem divide o mesmo teto 
+e as despesas com você.
+
+Você mora sozinho(a)?"
+  → SE morar sozinho: anotar somente o requerente e pular para o Bloco 5.
+  → SE houver outras pessoas:
+
+---
+
+[Para cada pessoa que mora junto, perguntar:]
+
+PERGUNTA 4.2 — NOME DO FAMILIAR
+"Qual é o nome completo dessa pessoa?"
+(Anotar: nome)
+
+PERGUNTA 4.3 — PARENTESCO
+"Essa pessoa é sua:
+  1 - Cônjuge / Companheiro(a) (marido, esposa, quem mora junto)
+  2 - Filho(a)
+  3 - Pai ou Mãe
+  4 - Irmão ou Irmã
+  5 - Outro (vizinho, amigo, etc.)"
+(Anotar: parentesco)
+
+PERGUNTA 4.4 — IDADE DO FAMILIAR
+"Quantos anos essa pessoa tem?"
+(Anotar: idade)
+
+[Repetir 4.2, 4.3 e 4.4 para cada pessoa que mora na casa]
+
+===============================================================================
+BLOCO 5 — RENDA DE CADA PESSOA DA CASA
+===============================================================================
+
+[Para CADA pessoa listada no Bloco 4, incluindo o requerente:]
+
+PERGUNTA 5.1 — FONTE DE RENDA
+"Falando agora sobre [NOME DA PESSOA]:
+De onde vem o dinheiro dela? Pode escolher uma das opções abaixo:
+  1 - Não tem nenhuma renda (desempregado, não trabalha)
+  2 - Trabalho com carteira assinada (CLT / emprego formal)
+  3 - Trabalho informal, bicos ou autônomo (sem carteira)
+  4 - Recebe Benefício Social (Bolsa Família, BPC/LOAS)
+  5 - Aposentadoria ou pensão do INSS
+  6 - Outra fonte"
+(Anotar: fonte de renda)
+
+---
+
+[SE escolher opção 4 — Benefício Social, perguntar:]
+
+PERGUNTA 5.2 — TIPO DE BENEFÍCIO
+"Qual benefício essa pessoa recebe?
+  1 - Bolsa Família
+  2 - BPC (Benefício de Prestação Continuada — pago a idosos de baixa renda 
+      com 65 anos ou mais, ou pessoas com deficiência)
+  3 - Outro benefício social"
+(Anotar: tipo de benefício)
+
+⚠️ DICA IMPORTANTE PARA O ATENDENTE:
+O Bolsa Família e o BPC NÃO são contados no cálculo de renda pela DPU.
+Mas é fundamental registrar para o relatório!
+
+---
+
+[SE a pessoa tiver qualquer renda (opções 2, 3, 4, 5 ou 6), perguntar:]
+
+PERGUNTA 5.3 — VALOR DA RENDA
+"Quanto essa pessoa recebe por mês, aproximadamente?
+(Pode ser o valor bruto, em reais. Exemplo: R$ 1.320,00 ou R$ 800,00)"
+(Anotar: valor mensal)
+
+[Repetir bloco 5 para cada pessoa da casa]
+
+===============================================================================
+BLOCO 6 — GASTOS FIXOS DA CASA
+===============================================================================
+
+PERGUNTA 6.1 — ALUGUEL / PRESTAÇÃO
+"Vocês pagam aluguel ou prestação da casa? Quanto por mês?
+(Se for casa própria quitada, falar zero)"
+(Anotar: valor — pode ser R$ 0,00)
+
+PERGUNTA 6.2 — ÁGUA
+"Quanto é a conta de água por mês, em média?"
+(Anotar: valor — se não tiver conta separada, deixar em branco)
+
+PERGUNTA 6.3 — LUZ
+"Quanto é a conta de luz por mês, em média?"
+(Anotar: valor)
+
+PERGUNTA 6.4 — ALIMENTAÇÃO
+"Quanto a família gasta no mercado e com alimentação por mês, em média?"
+(Anotar: valor)
+
+PERGUNTA 6.5 — SAÚDE / REMÉDIOS
+"A família tem alguma despesa mensal com saúde ou remédios de uso contínuo?
+Quanto, em média?"
+(Anotar: valor — se não tiver, deixar em branco)
+
+PERGUNTA 6.6 — TRANSPORTE
+"Quanto a família gasta por mês com ônibus, metrô, combustível ou 
+qualquer outro transporte para trabalhar ou estudar?"
+(Anotar: valor)
+
+PERGUNTA 6.7 — OUTROS GASTOS FIXOS
+"Tem algum outro gasto fixo que paga todo mês?
+(Exemplos: internet, plano de celular, gás, escola particular, etc.)
+Se tiver, me fala o nome e o valor de cada um."
+(Para cada gasto extra: anotar descrição e valor)
+
+---
+
+PERGUNTA 6.8 — GASTOS EXTRAORDINÁRIOS / PENSÃO
+"Existe algum gasto extraordinário na família que compromete muito a renda?
+(Exemplos: pensão alimentícia que você paga para um ex-cônjuge ou filho, 
+fraldas especiais para um familiar com deficiência, tratamento médico caro, etc.)
+Se tiver, me fala o que é e o valor mensal."
+(Para cada gasto extraordinário: anotar descrição e valor)
+
+===============================================================================
+BLOCO 7 — PATRIMÔNIO (BENS)
+===============================================================================
+
+PERGUNTA 7.1 — IMÓVEL / MORADIA
+"Em relação à casa onde vocês moram, qual das situações abaixo se aplica?
+  1 - Não temos casa própria (moram de aluguel, de favor, ou sem moradia fixa)
+  2 - Temos apenas a casa onde moramos, sem outros imóveis
+  3 - Além da casa onde moramos, temos outro imóvel 
+      (sítio, apartamento para alugar, terreno, outra casa)"
+(Anotar: situação imobiliária)
+
+---
+
+PERGUNTA 7.2 — VEÍCULO
+"Em relação a carros e motos, qual situação se aplica?
+  1 - Não temos nenhum carro ou moto
+  2 - Temos um veículo popular, usado para trabalho ou locomoção do dia a dia
+      (Exemplos: carro popular com mais de 5 anos, moto para delivery)
+  3 - Temos um carro de luxo ou de alto valor de mercado"
+(Anotar: situação de veículos)
+
+---
+
+PERGUNTA 7.3 — POUPANÇA / INVESTIMENTOS
+"Alguém da família tem dinheiro guardado em poupança, previdência privada, 
+ações ou qualquer otro tipo de investimento?"
+  → NÃO: anotar "não possui investimentos"
+  → SIM: perguntar:
+    "Pode me dizer o tipo (Ex: Poupança Caixa, FGTS, etc.) e o valor 
+    aproximado guardado?"
+    (Anotar: descrição e valor de cada investimento)
+
+===============================================================================
+BLOCO 8 — DEMANDA JURÍDICA (O MOTIVO DO PEDIDO)
+===============================================================================
+
+PERGUNTA 8.1 — ÁREA DO DIREITO
+"O motivo que te levou a procurar a Defensoria Pública se encaixa em 
+qual das áreas abaixo?
+  1 - Cível Geral (problemas de contratos, família, herança, moradia, etc.)
+  2 - Saúde (precisar de medicamento, tratamento ou cirurgia pelo SUS)
+  3 - Criminal (problema com a Justiça, acusação, processo criminal)
+  4 - Previdenciário (aposentadoria, auxílio-doença, pensão por morte — INSS)
+  5 - Direitos Humanos (discriminação, tortura, violações de direitos)
+
+Caso não saiba ao certo, pode escolher a que parece mais próxima."
+(Anotar: área do direito — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 8.2 — DESCRIÇÃO DO PEDIDO
+"Em poucas palavras, o que você precisa que a Defensoria faça por você?
+(Exemplos: 'Quero me aposentar pelo INSS mas meu pedido foi negado', 
+'Preciso de um remédio que o SUS não está fornecendo', 
+'Fui preso e preciso de defesa')"
+(Anotar: descrição do pedido — campo OBRIGATÓRIO)
+
+---
+
+PERGUNTA 8.3 — NÚMERO DE PROCESSO
+"Você já tem algum processo aberto na Justiça sobre esse assunto?
+Se sim, você sabe o número do processo?
+(Se não tiver processo ou não souber o número, pode pular.)"
+(Anotar: número do processo — campo opcional)
+
+===============================================================================
+BLOCO 9 — DECLARAÇÕES FINAIS (OBRIGATÓRIAS)
+===============================================================================
+
+[INSTRUÇÕES PARA O ATENDENTE]
+Antes de concluir o formulário, é OBRIGATÓRIO informar ao cidadão as duas 
+declarações abaixo e anotar que ele concordou com elas.
+
+---
+
+"Para finalizar, preciso te informar sobre duas declarações importantes 
+que você precisa concordar:
+
+1️⃣ VERACIDADE DAS INFORMAÇÕES:
+'Todas as informações que você me passou são verdadeiras? Você está ciente 
+de que prestar informações falsas é crime (Falsidade Ideológica)?'
+
+2️⃣ HIPOSSUFICIÊNCIA (NÃO TER CONDIÇÕES DE PAGAR ADVOGADO):
+'Você confirma que não tem condições financeiras de contratar um advogado 
+particular sem prejudicar o seu sustento e o da sua família?'"
+
+  → SE o cidadão concordar com as duas:
+    ✅ Marcar ambas as declarações no formulário e concluir o envio.
+  
+  → SE o cidadão recusar qualquer uma:
+    ⚠️ Não é possível prosseguir. Informar que as declarações são 
+    obrigatórias para o atendimento pela Defensoria Pública.
+
+===============================================================================
+ENCERRAMENTO
+===============================================================================
+
+Após coletar todas as informações, preencha o formulário no sistema
+e baixe o relatório para anexar ao processo de atendimento.
+
+[Mensagem de encerramento ao cidadão:]
+"Muito obrigado pelas informações! Eu já registrei tudo aqui no sistema.
+Em breve o(a) senhor(a) será contactado(a) pela Defensoria Pública da União
+com o resultado da análise do seu pedido. 🙏
+
+Qualquer dúvida, estamos à disposição. Tenha um ótimo dia!"
+
+===============================================================================
+FIM DO ROTEIRO
+Defensoria Pública da União - Formulário Socioeconômico
+===============================================================================
