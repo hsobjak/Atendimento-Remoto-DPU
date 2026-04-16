@@ -1,38 +1,22 @@
 import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { useAssessment } from '../../context/AssessmentContext';
-import { checkEligibility, calculateNetIncome, formatCurrency } from '../../utils/businessRules';
-import { TIPOS_DEMANDA, LIMITES } from '../../utils/constants';
-import { generatePDF } from '../../utils/pdfGenerator';
-import { CheckCircle, XCircle, AlertTriangle, FileText, RotateCcw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../utils/supabaseClient';
+import { checkEligibility } from '../../utils/businessRules';
+import { CheckCircle, Loader } from 'lucide-react';
 
 const ResultStep = () => {
     const { data } = useAssessment();
-    const navigate = useNavigate();
     const hasSaved = useRef(false);
     const [saveStatus, setSaveStatus] = useState('saving'); // 'saving', 'success', 'error'
 
-    // Safety check if accessed directly without data
     const result = useMemo(() => checkEligibility(data), [data]);
-
-    const isSaude = data.demand?.type === TIPOS_DEMANDA.CIVEL_SAUDE;
-    const netIncome = calculateNetIncome(data);
-    const membersCount = data.family?.members?.length || 1;
-    const perCapita = netIncome / membersCount;
-
-    const limitFamily = isSaude ? LIMITES.RENDA_SAUDE_TOTAL : LIMITES.RENDA_FAMILIAR_GERAL;
-    const limitPerCapita = isSaude ? LIMITES.RENDA_SAUDE_PER_CAPITA : LIMITES.RENDA_PER_CAPITA_GERAL;
-
-    const famSign = netIncome <= limitFamily ? '<=' : '>';
-    const perSign = perCapita <= limitPerCapita ? '<=' : '>';
 
     useEffect(() => {
         const saveToDatabase = async () => {
             if (hasSaved.current || !data.personal?.name) return;
             hasSaved.current = true;
-            
+
             try {
+                const { supabase } = await import('../../utils/supabaseClient');
                 const { error } = await supabase
                     .from('assessments')
                     .insert([{
@@ -56,131 +40,113 @@ const ResultStep = () => {
     }, [data, result]);
 
     const handleRestart = () => {
-        if (confirm('Deseja iniciar um novo atendimento?')) {
-            window.location.href = '/';
-        }
+        window.location.href = '/';
     };
 
-    const getStatusIcon = () => {
-        if (result.status === 'ELIGIBLE_AUTOMATIC') return <CheckCircle size={64} color="#004d40" />;
-        if (result.status === 'NOT_ELIGIBLE') return <XCircle size={64} color="#c62828" />;
-        return <AlertTriangle size={64} color="#f9a825" />;
-    };
-
-    const getStatusColor = () => {
-        if (result.status === 'ELIGIBLE_AUTOMATIC') return '#e0f2f1';
-        if (result.status === 'NOT_ELIGIBLE') return '#ffebee';
-        return '#fffde7';
-    };
-
-    return (
-        <div className="card" style={{ textAlign: 'center', padding: '40px 20px' }}>
-            {saveStatus === 'error' && (
-                <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', borderRadius: '4px', marginBottom: '20px', fontSize: '0.9rem' }}>
-                    Aviso: Houve um erro ao salvar seu relatório no sistema. Mas você ainda pode baixar o PDF abaixo.
-                </div>
-            )}
-            <div style={{ marginBottom: '20px' }}>
-                {getStatusIcon()}
-            </div>
-
-            <h2 style={{ fontSize: '1.8rem', color: '#333' }}>{result.message}</h2>
-            {data.personal?.name && <p style={{ marginTop: '10px', fontWeight: 'bold' }}>Requerente: {data.personal.name}</p>}
-
-            <div style={{
-                background: getStatusColor(),
-                padding: '20px',
-                borderRadius: '8px',
-                margin: '20px auto',
-                maxWidth: '600px',
-                border: '1px solid rgba(0,0,0,0.1)'
-            }}>
-                <p style={{ fontSize: '1.1rem', marginBottom: '8px' }}>
-                    <strong>Justificativa:</strong> {result.justification}
-                </p>
-                {result.appliedArticles.length > 0 && (
-                    <p style={{ fontSize: '0.9rem', color: '#555' }}>
-                        <strong>Fundamentação:</strong> {result.appliedArticles.join(', ')}
+    if (saveStatus === 'saving') {
+        return (
+            <div className="card" style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                    <Loader size={56} color="#004d40" style={{ animation: 'spin 1.2s linear infinite' }} />
+                    <h2 style={{ fontSize: '1.6rem', color: '#333' }}>Enviando suas informações...</h2>
+                    <p style={{ color: '#666', fontSize: '1.1rem', maxWidth: '480px' }}>
+                        Por favor, aguarde. Estamos registrando os dados fornecidos.
                     </p>
-                )}
-                {result.alerts.length > 0 && (
-                    <div style={{ marginTop: '12px', textAlign: 'left' }}>
-                        <strong>Alertas:</strong>
-                        <ul style={{ marginLeft: '20px' }}>
-                            {result.alerts.map((a, i) => <li key={i}>{a}</li>)}
-                        </ul>
-                    </div>
-                )}
+                </div>
+                <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
             </div>
+        );
+    }
 
-            {/* Quadro do Artigo 2º */}
-            {result.metCriteria && (
+    if (saveStatus === 'error') {
+        return (
+            <div className="card" style={{ textAlign: 'center', padding: '60px 20px' }}>
                 <div style={{
-                    margin: '20px auto',
-                    maxWidth: '800px',
-                    textAlign: 'left',
-                    background: '#fff',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                    border: '1px solid #e0e0e0'
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 96,
+                    height: 96,
+                    borderRadius: '50%',
+                    background: '#ffebee',
+                    marginBottom: 24,
                 }}>
-                    <h3 style={{ fontSize: '1.2rem', color: '#333', marginBottom: '10px', borderBottom: '2px solid #eee', paddingBottom: '8px' }}>
-                        Enquadramento - Art. 2º da Resolução CSDPU nº 240/2025
-                    </h3>
-                    
-                    <p style={{ fontSize: '0.95rem', color: '#555', marginBottom: '16px' }}>
-                        {result.metCriteriaList && result.metCriteriaList.length > 0 
-                            ? `Foram considerados atendidos os incisos: ${result.metCriteriaList.join(', ')}.`
-                            : `Nenhum dos incisos foi atingido.`
-                        }
-                    </p>
-
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                            <thead>
-                                <tr style={{ background: '#f5f5f5', borderBottom: '2px solid #ddd' }}>
-                                    <th style={{ padding: '12px', textAlign: 'left', width: '70%' }}>Critérios do Art. 2º</th>
-                                    <th style={{ padding: '12px', textAlign: 'center', width: '30%' }}>Situação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {[
-                                    { id: 'I', text: `Inciso I - Renda familiar até ${isSaude ? '5' : '2'} salário(s)-mínimo(s) (${formatCurrency(netIncome)} ${famSign} ${formatCurrency(limitFamily)})` },
-                                    { id: 'II', text: `Inciso II - Renda per capita até ${isSaude ? '1' : '1/2'} salário-mínimo (${formatCurrency(perCapita)} ${perSign} ${formatCurrency(limitPerCapita)})` },
-                                    { id: 'III', text: "Inciso III - Requerente titular do Bolsa Família" },
-                                    { id: 'IV', text: "Inciso IV - Requerente titular do BPC/LOAS" },
-                                    { id: 'V', text: "Inciso V - Requerente com renda previdenciária de até 1 SM" }
-                                ].map(cr => (
-                                    <tr key={cr.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '12px', color: '#444' }}>{cr.text}</td>
-                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: result.metCriteria[cr.id] ? '#2e7d32' : '#c62828' }}>
-                                            {result.metCriteria[cr.id] ? 'Atende aos Critérios' : 'Não atende aos Critérios'}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <span style={{ fontSize: 48 }}>⚠️</span>
                 </div>
-            )}
-
-            <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <button className="btn-secondary" onClick={() => navigate('/wizard/demand')} style={{ borderColor: '#666', color: '#666' }}>
-                    Voltar e Corrigir
-                </button>
-                <button className="btn-secondary" onClick={handleRestart}>
-                    <RotateCcw size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                <h2 style={{ fontSize: '1.8rem', color: '#c62828', marginBottom: '12px' }}>
+                    Erro ao enviar
+                </h2>
+                <p style={{ color: '#666', fontSize: '1.1rem', maxWidth: '500px', margin: '0 auto 32px' }}>
+                    Ocorreu um problema ao registrar suas informações. Por favor, informe ao atendente da Defensoria para que ele possa auxiliá-lo.
+                </p>
+                <button
+                    className="btn-secondary"
+                    onClick={handleRestart}
+                    style={{ fontSize: '1rem', padding: '12px 28px' }}
+                >
                     Voltar ao Início
                 </button>
-                <button className="btn-primary" onClick={() => generatePDF(data, result, 'complete')}>
-                    <FileText size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Baixar Relatório Completo
-                </button>
+            </div>
+        );
+    }
+
+    // saveStatus === 'success'
+    return (
+        <div className="card" style={{ textAlign: 'center', padding: '60px 20px' }}>
+            {/* Ícone de sucesso */}
+            <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 108,
+                height: 108,
+                borderRadius: '50%',
+                background: '#e0f2f1',
+                marginBottom: 28,
+            }}>
+                <CheckCircle size={64} color="#004d40" />
             </div>
 
-            <div style={{ marginTop: '40px', fontSize: '0.8rem', color: '#999', padding: '0 20px' }}>
-                AVISO: O resultado apresentado será analisado internamente pela Defensoria Pública da União.
+            <h2 style={{ fontSize: '2rem', color: '#004d40', marginBottom: '12px' }}>
+                Formulário enviado com sucesso!
+            </h2>
+
+            {data.personal?.name && (
+                <p style={{ fontSize: '1.1rem', color: '#555', marginBottom: '8px' }}>
+                    Obrigado, <strong>{data.personal.name}</strong>.
+                </p>
+            )}
+
+            <p style={{ color: '#666', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 16px' }}>
+                Suas informações foram registradas e serão analisadas pela equipe da Defensoria Pública da União.
+            </p>
+
+            <p style={{ color: '#888', fontSize: '0.95rem', maxWidth: '500px', margin: '0 auto 40px' }}>
+                Em breve você será contactado para mais informações sobre o seu atendimento. Não é necessário fazer mais nada agora.
+            </p>
+
+            <div style={{
+                background: '#f9f9f9',
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                padding: '16px 24px',
+                display: 'inline-block',
+                maxWidth: '480px',
+                marginBottom: '40px',
+            }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#999' }}>
+                    AVISO: O resultado apresentado será analisado internamente pela Defensoria Pública da União. Esta tela não substitui a análise jurídica feita pelos defensores públicos.
+                </p>
+            </div>
+
+            <div>
+                <button
+                    className="btn-secondary"
+                    onClick={handleRestart}
+                    style={{ fontSize: '1rem', padding: '12px 28px' }}
+                >
+                    Novo Atendimento
+                </button>
             </div>
         </div>
     );
