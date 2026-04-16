@@ -115,7 +115,7 @@ const AdminDashboard = () => {
                                                 background: report.eligibility_status === 'ELIGIBLE_AUTOMATIC' ? '#e8f5e9' : report.eligibility_status === 'NOT_ELIGIBLE' ? '#ffebee' : '#fffde7',
                                                 color: report.eligibility_status === 'ELIGIBLE_AUTOMATIC' ? '#2e7d32' : report.eligibility_status === 'NOT_ELIGIBLE' ? '#c62828' : '#f57f17'
                                             }}>
-                                                {report.eligibility_status === 'ELIGIBLE_AUTOMATIC' ? 'Decreto' : report.eligibility_status === 'NOT_ELIGIBLE' ? 'Não Atingiu' : 'Análise DPU'}
+                                                {report.eligibility_status === 'ELIGIBLE_AUTOMATIC' ? 'Enquadra-se' : report.eligibility_status === 'NOT_ELIGIBLE' ? 'Não se Enquadra' : 'Análise Necessária'}
                                             </span>
                                         </td>
                                         <td style={{ padding: '16px', textAlign: 'center' }}>
