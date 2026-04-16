@@ -19,6 +19,8 @@ export const AssessmentProvider = ({ children }) => {
             zipCode: '',
             complement: '',
             phone: '',
+            alternativePhone: '',
+            email: '',
 
             isRepresented: 'nao', // 'sim' or 'nao'
             representativeName: '',

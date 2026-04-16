@@ -1,14 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { useAssessment } from '../../context/AssessmentContext';
 import { checkEligibility, calculateNetIncome, formatCurrency } from '../../utils/businessRules';
 import { TIPOS_DEMANDA, LIMITES } from '../../utils/constants';
 import { generatePDF } from '../../utils/pdfGenerator';
 import { CheckCircle, XCircle, AlertTriangle, FileText, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../utils/supabaseClient';
 
 const ResultStep = () => {
     const { data } = useAssessment();
     const navigate = useNavigate();
+    const hasSaved = useRef(false);
+    const [saveStatus, setSaveStatus] = useState('saving'); // 'saving', 'success', 'error'
 
     // Safety check if accessed directly without data
     const result = useMemo(() => checkEligibility(data), [data]);
@@ -24,8 +27,36 @@ const ResultStep = () => {
     const famSign = netIncome <= limitFamily ? '<=' : '>';
     const perSign = perCapita <= limitPerCapita ? '<=' : '>';
 
+    useEffect(() => {
+        const saveToDatabase = async () => {
+            if (hasSaved.current || !data.personal?.name) return;
+            hasSaved.current = true;
+            
+            try {
+                const { error } = await supabase
+                    .from('assessments')
+                    .insert([{
+                        applicant_name: data.personal.name,
+                        cpf: data.personal.cpf || null,
+                        demand_type: data.demand?.type || null,
+                        eligibility_status: result.status,
+                        full_data: data,
+                        analysis_result: result
+                    }]);
+
+                if (error) throw error;
+                setSaveStatus('success');
+            } catch (err) {
+                console.error("Erro ao salvar no banco:", err);
+                setSaveStatus('error');
+            }
+        };
+
+        saveToDatabase();
+    }, [data, result]);
+
     const handleRestart = () => {
-        if (confirm('Deseja iniciar um novo atendimento? Todos os dados atuais serão perdidos.')) {
+        if (confirm('Deseja iniciar um novo atendimento?')) {
             window.location.href = '/';
         }
     };
@@ -44,6 +75,11 @@ const ResultStep = () => {
 
     return (
         <div className="card" style={{ textAlign: 'center', padding: '40px 20px' }}>
+            {saveStatus === 'error' && (
+                <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', borderRadius: '4px', marginBottom: '20px', fontSize: '0.9rem' }}>
+                    Aviso: Houve um erro ao salvar seu relatório no sistema. Mas você ainda pode baixar o PDF abaixo.
+                </div>
+            )}
             <div style={{ marginBottom: '20px' }}>
                 {getStatusIcon()}
             </div>
@@ -130,25 +166,21 @@ const ResultStep = () => {
             )}
 
             <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <button className="btn-secondary" onClick={() => navigate('/step/3')} style={{ borderColor: '#666', color: '#666' }}>
-                    Voltar e Editar
+                <button className="btn-secondary" onClick={() => navigate('/wizard/demand')} style={{ borderColor: '#666', color: '#666' }}>
+                    Voltar e Corrigir
                 </button>
                 <button className="btn-secondary" onClick={handleRestart}>
                     <RotateCcw size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Novo Atendimento
+                    Voltar ao Início
                 </button>
                 <button className="btn-primary" onClick={() => generatePDF(data, result, 'complete')}>
                     <FileText size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Relatório Completo
-                </button>
-                <button className="btn-primary" onClick={() => generatePDF(data, result, 'objective')} style={{ background: '#2e7d32' }}>
-                    <FileText size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Relatório Objetivo
+                    Baixar Relatório Completo
                 </button>
             </div>
 
             <div style={{ marginTop: '40px', fontSize: '0.8rem', color: '#999', padding: '0 20px' }}>
-                AVISO: O resultado apresentado é orientativo e não substitui a análise do/a Defensor/a Público/a Federal, que possui independência funcional.
+                AVISO: O resultado apresentado será analisado internamente pela Defensoria Pública da União.
             </div>
         </div>
     );

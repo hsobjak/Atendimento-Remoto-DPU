@@ -86,15 +86,26 @@ export const generatePDF = async (data, result, mode = 'objective') => {
     };
 
     const row = (label, value) => {
-        checkPageBreak(6);
+        const labelText = `${label}: `;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
-        const labelText = `${label}: `;
+        const labelWidth = doc.getTextWidth(labelText);
+        
+        doc.setFont("helvetica", "normal");
+        const valueP = String(value || '-');
+        const availableWidth = pageWidth - margin - (margin + labelWidth + 2);
+        
+        const splitValue = doc.splitTextToSize(valueP, availableWidth);
+        const heightNeeded = splitValue.length * 5.5;
+        
+        checkPageBreak(heightNeeded);
+        
+        doc.setFont("helvetica", "bold");
         doc.text(labelText, margin, y);
         doc.setFont("helvetica", "normal");
-        const labelWidth = doc.getTextWidth(labelText);
-        doc.text(String(value || '-'), margin + labelWidth + 2, y);
-        y += 5.5;
+        doc.text(splitValue, margin + labelWidth + 2, y);
+        
+        y += heightNeeded;
     };
 
 
@@ -228,6 +239,8 @@ export const generatePDF = async (data, result, mode = 'objective') => {
         row('Estado Civil', data.personal?.civilStatus);
         row('Profissão', data.personal?.profession);
         row('Telefone', data.personal?.phone);
+        if (data.personal?.alternativePhone) row('Telefone (Recado)', data.personal.alternativePhone);
+        if (data.personal?.email) row('E-mail', data.personal.email);
 
         const priorities = [];
         if (data.personal?.priorities?.elderly) priorities.push('Idoso');

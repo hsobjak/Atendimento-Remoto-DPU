@@ -15,11 +15,14 @@ const Layout = ({ children }) => {
                             <h1 style={{ fontSize: '1.4rem', color: '#003B28', margin: 0, fontWeight: 700, lineHeight: 1.1 }}>Defensoria Pública da União</h1>
                             <p style={{ fontSize: '0.85rem', color: '#666', margin: 0 }}>Garantia de Assistência Jurídica Integral e Gratuita</p>
                         </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#003B28', borderLeft: '4px solid #D4AF37', paddingLeft: '10px' }}>
+                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#003B28', borderLeft: '4px solid #D4AF37', paddingLeft: '16px', marginLeft: '16px' }}>
                             Formulário Socioeconômico
                         </span>
+                    </div>
+                    <div>
+                        <a href="/admin" className="btn-secondary" style={{ padding: '6px 16px', fontSize: '0.85rem', color: '#004d40', border: '2px solid #004d40', borderRadius: '4px', textDecoration: 'none', fontWeight: 'bold' }}>
+                            Área do Administrador
+                        </a>
                     </div>
                 </div>
             </header>
