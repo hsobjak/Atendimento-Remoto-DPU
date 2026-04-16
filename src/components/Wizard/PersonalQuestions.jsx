@@ -80,7 +80,7 @@ const PersonalQuestions = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                 <div className="form-group">
                     <label className="form-label" style={{ fontSize: '1.1rem' }}>Qual a sua Data de Nascimento?</label>
                     <input 
@@ -88,21 +88,7 @@ const PersonalQuestions = () => {
                         className="form-control" 
                         style={{ fontSize: '1.1rem', padding: '12px' }}
                         value={data.personal.birthDate || ''} 
-                        onChange={e => {
-                            updatePersonal('birthDate', e.target.value);
-                            if (e.target.value) {
-                                const bd = new Date(e.target.value);
-                                const today = new Date();
-                                let ageVal = today.getFullYear() - bd.getFullYear();
-                                const m = today.getMonth() - bd.getMonth();
-                                if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
-                                    ageVal--;
-                                }
-                                if (ageVal >= 0 && !data.personal.age) {
-                                    updatePersonal('age', ageVal.toString());
-                                }
-                            }
-                        }} 
+                        onChange={e => updatePersonal('birthDate', e.target.value)} 
                     />
                 </div>
                 <div className="form-group">
@@ -116,6 +102,9 @@ const PersonalQuestions = () => {
                         onChange={e => updatePersonal('age', e.target.value)} 
                     />
                 </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                 <div className="form-group">
                     <label className="form-label" style={{ fontSize: '1.1rem' }}>Qual o seu Estado Civil?</label>
                     <select 
@@ -128,17 +117,16 @@ const PersonalQuestions = () => {
                         {ESTADO_CIVIL.map(e => <option key={e} value={e}>{e}</option>)}
                     </select>
                 </div>
-            </div>
-
-            <div className="form-group" style={{ marginBottom: '24px' }}>
-                <label className="form-label" style={{ fontSize: '1.1rem' }}>Sua profissão ou ocupação principal (Opcional)</label>
-                <input 
-                    className="form-control" 
-                    placeholder="Ex: Pedreiro, Dona de casa, Estudante..."
-                    style={{ fontSize: '1.1rem', padding: '12px' }}
-                    value={data.personal.profession || ''} 
-                    onChange={e => updatePersonal('profession', e.target.value)} 
-                />
+                <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '1.1rem' }}>Sua profissão principal (Opcional)</label>
+                    <input 
+                        className="form-control" 
+                        placeholder="Ex: Do lar, Pedreiro, Estudante..."
+                        style={{ fontSize: '1.1rem', padding: '12px' }}
+                        value={data.personal.profession || ''} 
+                        onChange={e => updatePersonal('profession', e.target.value)} 
+                    />
+                </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px' }}>
