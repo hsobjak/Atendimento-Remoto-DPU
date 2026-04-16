@@ -13,8 +13,8 @@ const PersonalQuestions = () => {
     };
 
     const handleNext = () => {
-        if (!data.personal.name || !data.personal.cpf) {
-            alert("Nome e CPF são campos obrigatórios.");
+        if (!data.personal.name || !data.personal.cpf || !data.personal.age) {
+            alert("Nome, CPF e Idade são campos obrigatórios.");
             return;
         }
 
@@ -23,13 +23,13 @@ const PersonalQuestions = () => {
         const reqIdx = members.findIndex(m => m.kinship === 'Requerente (Próprio)');
 
         if (reqIdx > -1) {
-            members[reqIdx] = { ...members[reqIdx], name: data.personal.name, cpf: data.personal.cpf };
+            members[reqIdx] = { ...members[reqIdx], name: data.personal.name, cpf: data.personal.cpf, age: data.personal.age || '' };
         } else {
             members.unshift({
                 name: data.personal.name,
                 cpf: data.personal.cpf,
                 kinship: 'Requerente (Próprio)',
-                age: '',
+                age: data.personal.age || '',
                 incomeSource: 'Sem Renda',
                 incomeValue: '0'
             });
@@ -80,7 +80,7 @@ const PersonalQuestions = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                 <div className="form-group">
                     <label className="form-label" style={{ fontSize: '1.1rem' }}>Qual a sua Data de Nascimento?</label>
                     <input 
@@ -88,7 +88,32 @@ const PersonalQuestions = () => {
                         className="form-control" 
                         style={{ fontSize: '1.1rem', padding: '12px' }}
                         value={data.personal.birthDate || ''} 
-                        onChange={e => updatePersonal('birthDate', e.target.value)} 
+                        onChange={e => {
+                            updatePersonal('birthDate', e.target.value);
+                            if (e.target.value) {
+                                const bd = new Date(e.target.value);
+                                const today = new Date();
+                                let ageVal = today.getFullYear() - bd.getFullYear();
+                                const m = today.getMonth() - bd.getMonth();
+                                if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
+                                    ageVal--;
+                                }
+                                if (ageVal >= 0 && !data.personal.age) {
+                                    updatePersonal('age', ageVal.toString());
+                                }
+                            }
+                        }} 
+                    />
+                </div>
+                <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '1.1rem' }}>Idade *</label>
+                    <input 
+                        type="number" 
+                        className="form-control" 
+                        placeholder="Ex: 35"
+                        style={{ fontSize: '1.1rem', padding: '12px' }}
+                        value={data.personal.age || ''} 
+                        onChange={e => updatePersonal('age', e.target.value)} 
                     />
                 </div>
                 <div className="form-group">
