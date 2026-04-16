@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
     return (
         <div className="app-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <header style={{ background: '#FFFFFF', borderBottom: '1px solid #e1e4e8', padding: '16px 0', borderTop: '4px solid #003B28' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 32px' }}>
+                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 1, minWidth: 0 }}>
                         <img src="/logo_dpu_header.png" alt="DPU Logo" style={{ height: '55px', flexShrink: 0 }} />
                         <div style={{ flexShrink: 0 }}>
