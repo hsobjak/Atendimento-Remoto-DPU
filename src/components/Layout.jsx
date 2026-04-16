@@ -8,8 +8,8 @@ const Layout = ({ children }) => {
     return (
         <div className="app-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <header style={{ background: '#FFFFFF', borderBottom: '1px solid #e1e4e8', padding: '16px 0', borderTop: '4px solid #003B28' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 1, minWidth: 0 }}>
+                <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'center' }}>
                         <img src="/logo_dpu_header.png" alt="DPU Logo" style={{ height: '55px', flexShrink: 0 }} />
                         <div style={{ flexShrink: 0 }}>
                             <h1 style={{ fontSize: '1.4rem', color: '#003B28', margin: 0, fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap' }}>Defensoria Pública da União</h1>
@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
                             Formulário Socioeconômico
                         </span>
                     </div>
-                    <div style={{ flexShrink: 0, marginLeft: '16px' }}>
+                    <div style={{ position: 'absolute', right: '32px' }}>
                         <a href="/admin" style={{ padding: '10px 20px', background: '#003B28', color: '#FFF', border: 'none', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', whiteSpace: 'nowrap', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'inline-block' }}>
                             Área do Administrador
                         </a>
