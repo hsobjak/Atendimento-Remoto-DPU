@@ -17,21 +17,38 @@ const ResultStep = () => {
 
             try {
                 const { supabase } = await import('../../utils/supabaseClient');
+                
+                // Diagnostic log for the developer console
+                const envCheck = !!import.meta.env.VITE_SUPABASE_URL && !!import.meta.env.VITE_SUPABASE_ANON_KEY;
+                console.log("[Supabase Config Check] Keys found:", envCheck);
+
+                // Deep copy to ensure serializability and remove possible React/Proxy noise
+                const cleanData = JSON.parse(JSON.stringify(data));
+
                 const { error } = await supabase
                     .from('assessments')
                     .insert([{
-                        applicant_name: data.personal.name,
-                        cpf: data.personal.cpf || null,
-                        demand_type: data.demand?.type || null,
+                        applicant_name: cleanData.personal.name,
+                        cpf: cleanData.personal.cpf || null,
+                        demand_type: cleanData.demand?.type || null,
                         eligibility_status: result.status,
-                        full_data: data,
+                        full_data: cleanData,
                         analysis_result: result
                     }]);
 
-                if (error) throw error;
+                if (error) {
+                    console.error("Erro retornado pelo Supabase (detalhado):", {
+                        code: error.code,
+                        message: error.message,
+                        details: error.details,
+                        hint: error.hint
+                    });
+                    throw error;
+                }
+                
                 setSaveStatus('success');
             } catch (err) {
-                console.error("Erro ao salvar no banco:", err);
+                console.error("Erro fatal capturado no salvamento:", err);
                 setSaveStatus('error');
             }
         };
