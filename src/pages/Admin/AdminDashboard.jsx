@@ -100,25 +100,25 @@ const AdminDashboard = () => {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
                             <thead>
                                 <tr style={{ background: '#F8FAFC', textAlign: 'left', borderBottom: '2px solid #EDF2F7' }}>
-                                    <th style={{ padding: '16px 24px', color: '#4A5568', fontWeight: 700 }}><Calendar size={14} style={{ marginRight: '6px' }} /> DATA</th>
-                                    <th style={{ padding: '16px 24px', color: '#4A5568', fontWeight: 700 }}><User size={14} style={{ marginRight: '6px' }} /> REQUERENTE</th>
-                                    <th style={{ padding: '16px 24px', color: '#4A5568', fontWeight: 700 }}>CPF</th>
-                                    <th style={{ padding: '16px 24px', color: '#4A5568', fontWeight: 700 }}>DEMANDA</th>
-                                    <th style={{ padding: '16px 24px', color: '#4A5568', fontWeight: 700, textAlign: 'center' }}>SITUAÇÃO</th>
-                                    <th style={{ padding: '16px 24px', color: '#4A5568', fontWeight: 700, textAlign: 'center' }}>AÇÕES</th>
+                                    <th style={{ padding: '16px 12px', color: '#4A5568', fontWeight: 700 }}><Calendar size={14} style={{ marginRight: '6px' }} /> DATA</th>
+                                    <th style={{ padding: '16px 12px', color: '#4A5568', fontWeight: 700 }}><User size={14} style={{ marginRight: '6px' }} /> REQUERENTE</th>
+                                    <th style={{ padding: '16px 12px', color: '#4A5568', fontWeight: 700 }}>CPF</th>
+                                    <th style={{ padding: '16px 12px', color: '#4A5568', fontWeight: 700 }}>DEMANDA</th>
+                                    <th style={{ padding: '16px 12px', color: '#4A5568', fontWeight: 700, textAlign: 'center' }}>SITUAÇÃO</th>
+                                    <th style={{ padding: '16px 12px', color: '#4A5568', fontWeight: 700, textAlign: 'right' }}>AÇÕES</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredReports.map((report) => (
                                     <tr key={report.id} className="table-row">
-                                        <td style={{ padding: '16px 24px' }}>
+                                        <td style={{ padding: '16px 12px' }}>
                                             <div style={{ fontWeight: 500 }}>{new Date(report.created_at).toLocaleDateString('pt-BR')}</div>
                                             <div style={{ fontSize: '0.8rem', color: '#A0AEC0' }}>{new Date(report.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
                                         </td>
-                                        <td style={{ padding: '16px 24px', fontWeight: 600, color: 'var(--color-primary)' }}>{report.applicant_name}</td>
-                                        <td style={{ padding: '16px 24px', color: '#4A5568' }}>{report.cpf}</td>
-                                        <td style={{ padding: '16px 24px', color: '#4A5568' }}>{report.demand_type}</td>
-                                        <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                                        <td style={{ padding: '16px 12px', fontWeight: 600, color: 'var(--color-primary)' }}>{report.applicant_name}</td>
+                                        <td style={{ padding: '16px 12px', color: '#4A5568' }}>{report.cpf}</td>
+                                        <td style={{ padding: '16px 12px', color: '#4A5568' }}>{report.demand_type}</td>
+                                        <td style={{ padding: '16px 12px', textAlign: 'center' }}>
                                             <span style={{
                                                 padding: '6px 14px',
                                                 borderRadius: '50px',
@@ -134,7 +134,7 @@ const AdminDashboard = () => {
                                                 {report.eligibility_status === 'ELIGIBLE_AUTOMATIC' ? 'Enquadra-se' : report.eligibility_status === 'NOT_ELIGIBLE' ? 'Não Enquadra' : 'Análise'}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                                        <td style={{ padding: '16px 12px', textAlign: 'right' }}>
                                             <Link to={`/admin/report/${report.id}`} style={{ 
                                                 color: 'var(--color-primary)', 
                                                 textDecoration: 'none', 
