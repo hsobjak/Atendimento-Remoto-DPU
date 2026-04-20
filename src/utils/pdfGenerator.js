@@ -120,6 +120,15 @@ export const generatePDF = async (data, result, mode = 'objective') => {
     doc.setTextColor(0);
     y += 4;
 
+    // Nota: Preenchido pelo requerente
+    doc.setFont("helvetica", "bolditalic");
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    const filledByMsg = "RELATÓRIO PREENCHIDO PELO(A) REQUERENTE: Este documento foi gerado a partir de informações inseridas diretamente pelo cidadão via atendimento remoto, sem a intermediação de um atendente.";
+    const splitFilledBy = doc.splitTextToSize(filledByMsg, pageWidth - 2 * margin);
+    doc.text(splitFilledBy, margin, y);
+    y += (splitFilledBy.length * 4.5) + 4;
+
     sectionTitle('Resultado da Avaliação');
     const statusColors = { ELIGIBLE_AUTOMATIC: [46, 125, 50], NOT_ELIGIBLE: [198, 40, 40], NEEDS_ANALYSIS: [230, 120, 0] };
     const [r, g, b] = statusColors[result.status] || [0, 0, 0];
