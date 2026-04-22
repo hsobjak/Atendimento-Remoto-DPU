@@ -36,10 +36,17 @@ const AddressQuestions = () => {
     };
 
     const handleNext = () => {
-        if (!data.personal.street || !data.personal.number || !data.personal.neighborhood || !data.personal.zipCode) {
-            alert("Logradouro, Número, Bairro e CEP são obrigatórios.");
+        if (!data.personal.street || !data.personal.number || !data.personal.neighborhood || !data.personal.zipCode || !data.personal.phone || !data.personal.email) {
+            alert("Logradouro, Número, Bairro, CEP, Telefone e E-mail são obrigatórios.");
             return;
         }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.personal.email)) {
+            alert("Por favor, insira um e-mail válido.");
+            return;
+        }
+
         navigate('/wizard/priorities');
     };
 
@@ -137,11 +144,11 @@ const AddressQuestions = () => {
             </div>
 
             <div className="form-group" style={{ marginBottom: '24px' }}>
-                <label className="form-label" style={{ fontSize: '1.1rem' }}>E-mail</label>
+                <label className="form-label" style={{ fontSize: '1.1rem' }}>E-mail *</label>
                 <input 
                     type="email"
                     className="form-control" 
-                    placeholder="Seu e-mail (Opcional)" 
+                    placeholder="Seu e-mail" 
                     style={{ fontSize: '1.1rem', padding: '12px' }}
                     value={data.personal.email || ''} 
                     onChange={e => updatePersonal('email', e.target.value)} 
